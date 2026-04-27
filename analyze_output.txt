@@ -1,0 +1,10 @@
+﻿Analyzing lib...
+
+warning - core\router\app_router.dart:2:8 - Unused import: 'package:flutter_bloc/flutter_bloc.dart'. Try removing the import directive. - unused_import
+warning - presentation\blocs\scanner\scanner_event.dart:2:8 - Unused import: '../../../domain/entities/qr_validation.dart'. Try removing the import directive. - unused_import
+warning - presentation\pages\scanner\scanner_page.dart:8:8 - Unused import: '../../../core/constants/app_theme.dart'. Try removing the import directive. - unused_import
+warning - presentation\pages\scanner\scanner_page.dart:59:45 - Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code
+warning - presentation\pages\scanner\scanner_page.dart:59:48 - The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand. - dead_null_aware_expression
+   info - presentation\pages\settings\settings_page.dart:55:23 - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+
+6 issues found.

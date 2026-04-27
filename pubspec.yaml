@@ -1,0 +1,83 @@
+name: guestly
+description: "Guestly - Event Guest Management & QR Access Control"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Supabase
+  supabase_flutter: ^2.8.0
+
+  # State Management
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.7
+
+  # Local DB
+  sqflite: ^2.4.2
+  path: ^1.9.0
+
+  # QR Code
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^6.0.0
+
+  # Navigation
+  go_router: ^15.0.0
+
+  # UI/UX
+  fl_chart: ^0.70.0
+  shimmer: ^3.0.0
+  google_fonts: ^6.2.1
+  cached_network_image: ^3.4.1
+
+  # Sharing
+  share_plus: ^10.1.4
+
+  # Internationalization
+  intl: any
+
+  # Utils
+  uuid: ^4.5.1
+  connectivity_plus: ^6.1.2
+  vibration: ^2.0.0
+
+  # DI
+  get_it: ^8.0.3
+
+  # Functional
+  dartz: ^0.10.1
+
+  # JSON
+  json_annotation: ^4.9.0
+
+  # Environment
+  flutter_dotenv: ^5.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.13
+  json_serializable: ^6.9.3
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/
+    - assets/images/
+    - .env
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default:21

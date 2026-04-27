@@ -1,0 +1,196 @@
+{
+  "@@locale": "es",
+  "appTitle": "Guestly",
+  "login": "Iniciar Sesión",
+  "register": "Registrarse",
+  "email": "Correo electrónico",
+  "password": "Contraseña",
+  "name": "Nombre completo",
+  "hello": "¡Hola, {name}! 👋",
+  "@hello": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "myNextEvent": "Mi Próximo Evento",
+  "countdown": "Cuenta regresiva",
+  "scanGuests": "ESCANEAR INVITADOS",
+  "quickGuestList": "Lista Rápida de Invitados",
+  "search": "Buscar",
+  "confirmed": "Confirmado",
+  "pending": "Pendiente",
+  "sendInvitation": "Enviar Invitación",
+  "viewDetails": "Ver Detalles",
+  "myEvents": "Mis Eventos",
+  "newEvent": "Nuevo Evento",
+  "profile": "Perfil",
+  "settings": "Ajustes",
+  "analytics": "Analíticas",
+  "guests": "Invitados",
+  "addGuest": "Agregar Invitado",
+  "estimatedAttendance": "Asistencia Estimada",
+  "totalInvited": "Total Invitados",
+  "checkedIn": "Confirmados",
+  "dark_mode": "Modo Oscuro",
+  "language": "Idioma",
+  "logout": "Cerrar Sesión",
+  "createEvent": "Crear Evento",
+  "eventType": "Tipo de Evento",
+  "eventName": "Nombre del evento",
+  "eventDate": "Fecha",
+  "eventTime": "Hora",
+  "eventLocation": "Ubicación",
+  "maxGuests": "Capacidad máxima",
+  "accessGranted": "Acceso Permitido",
+  "invalidCode": "Código Inválido",
+  "alreadyCheckedIn": "Ya Ingresó",
+  "partialAccess": "Acceso Parcial",
+  "userManagementSubtitle": "Gestión inteligente de invitados",
+  "emailHint": "Ingresa tu correo",
+  "emailInvalid": "Correo inválido",
+  "passwordHint": "Ingresa tu contraseña",
+  "passwordTooShort": "Mínimo 6 caracteres",
+  "dontHaveAccount": "¿No tienes cuenta? ",
+  "registerNow": "Regístrate",
+  "alreadyHaveAccount": "¿Ya tienes cuenta? ",
+  "loginNow": "Inicia Sesión",
+  "createAccount": "Crear Cuenta",
+  "confirmPassword": "Confirmar contraseña",
+  "passwordsDoNotMatch": "Las contraseñas no coinciden",
+  "nameHint": "Ingresa tu nombre",
+  "noEventsFound": "No hay eventos próximos\nCrea tu primer evento 🎉",
+  "total": "Total",
+  "noGuestsFound": "No hay invitados aún.\nAgrega invitados a tu evento.",
+  "active": "Activo",
+  "inactive": "Inactivo",
+  "status_pending": "Pendiente",
+  "status_completed": "Realizado",
+  "status_cancelled": "Cancelado",
+  "invitationCancelled": "Invitación Cancelada",
+  "event_wedding": "Boda",
+  "event_birthday": "Cumpleaños",
+  "event_corporate": "Corporativo",
+  "event_quinceanera": "Quinceañera",
+  "event_graduation": "Graduación",
+  "event_concert": "Concierto",
+  "event_other": "Otro",
+  "noEventsYet": "No tienes eventos",
+  "eventCreatedSuccess": "Evento creado exitosamente 🎉",
+  "enterEventName": "Ingresa el nombre del evento",
+  "enterCapacity": "Ingresa la capacidad",
+  "invalidNumber": "Número inválido",
+  "eventDescription": "Descripción (opcional)",
+  "eventNotFound": "Evento no encontrado",
+  "guestsCount": "{count} invitados",
+  "@guestsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "scan": "Escanear",
+  "guestSummary": "Resumen de Invitados",
+  "checkIn": "Check-in",
+  "searchGuest": "Buscar invitado...",
+  "deleteGuest": "Eliminar Invitado",
+  "deleteGuestConfirm": "¿Eliminar a {name}?",
+  "@deleteGuestConfirm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "people": "personas",
+  "guestAddedSuccess": "{name} agregado ✅",
+  "@guestAddedSuccess": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "guestNameHint": "Nombre del invitado o familia",
+  "peopleCount": "Cantidad de personas",
+  "individualInvitation": "Invitación individual",
+  "groupInvitation": "Invitación grupal ({count} personas)",
+  "@groupInvitation": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "contactData": "Datos de Contacto (al menos uno)",
+  "whatsapp": "WhatsApp",
+  "telegram": "Telegram",
+  "phone": "Teléfono",
+  "notesOptional": "Notas (opcional)",
+  "qrScanner": "Escáner QR",
+  "peopleEntering": "Personas ingresando: ",
+  "pointCameraAtQr": "Apunta la cámara al código QR",
+  "remainingSlots": "Cupos restantes: {count}",
+  "@remainingSlots": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "continueScanning": "CONTINUAR ESCANEANDO",
+  "dashboard": "Inicio",
+  "user": "Usuario",
+  "admin": "Administrador",
+  "staff": "Staff",
+  "help": "Ayuda",
+  "about": "Acerca de",
+  "confirmedVsPending": "Confirmados vs Pendientes",
+  "perEvent": "Por Evento",
+  "checkIns": "check-ins",
+  "appearance": "Apariencia",
+  "enabled": "Activado",
+  "disabled": "Desactivado",
+  "info": "Información",
+  "version": "Versión",
+  "termsOfUse": "Términos de uso",
+  "privacyPolicy": "Política de privacidad",
+  "registrationSuccessMessage": "Registro exitoso. Revisa tu correo para verificar tu cuenta.",
+  "events": "Eventos",
+  "invitationMessage": "¡Hola {guestName}! Estás invitado a {eventName}. Tu pase QR es: {link}",
+  "@invitationMessage": {
+    "placeholders": {
+      "guestName": { "type": "String" },
+      "eventName": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  },
+  "editEvent": "Editar Evento",
+  "editGuest": "Editar Invitado",
+  "saveChanges": "Guardar Cambios",
+  "eventUpdatedSuccess": "Evento actualizado ✅",
+  "eventDeletedSuccess": "Evento eliminado",
+  "deleteEvent": "Eliminar Evento",
+  "deleteEventConfirm": "¿Estás seguro de eliminar '{title}'? Esta acción no se puede deshacer.",
+  "@deleteEventConfirm": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "invitationWedding": "¡Hola {guestName}! Estamos felices de invitarte a nuestra Boda: {eventName}. Obtén tu pase QR aquí: {link}",
+  "@invitationWedding": {
+    "placeholders": {
+      "guestName": { "type": "String" },
+      "eventName": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  },
+  "invitationBirthday": "¡Hola {guestName}! Te espero para celebrar mi cumpleaños: {eventName}. Tu pase QR es: {link}",
+  "@invitationBirthday": {
+    "placeholders": {
+      "guestName": { "type": "String" },
+      "eventName": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  },
+  "invitationCorporate": "Estimado(a) {guestName}, le invitamos formalmente al evento corporativo: {eventName}. Su pase de acceso QR: {link}",
+  "@invitationCorporate": {
+    "placeholders": {
+      "guestName": { "type": "String" },
+      "eventName": { "type": "String" },
+      "link": { "type": "String" }
+    }
+  }
+}
