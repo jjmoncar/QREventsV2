@@ -14,11 +14,27 @@ class AuthRemoteDatasource {
     if (response.user == null) {
       throw Exception('Error al iniciar sesión');
     }
-    final profile = await _client
+    
+    var profile = await _client
         .from('profiles')
         .select()
         .eq('id', response.user!.id)
-        .single();
+        .maybeSingle();
+
+    if (profile == null) {
+      // Auto-create profile if missing
+      final newProfile = {
+        'id': response.user!.id,
+        'email': response.user!.email ?? '',
+        'full_name': response.user!.userMetadata?['full_name'],
+        'role': 'admin',
+      };
+      await _client.from('profiles').insert(newProfile);
+      profile = newProfile;
+    } else {
+      profile['email'] = response.user!.email ?? '';
+    }
+    
     return UserModel.fromJson(profile);
   }
 
@@ -34,13 +50,28 @@ class AuthRemoteDatasource {
     }
 
     // Profile is created automatically by database trigger
-
-
-    final profile = await _client
+    // But we use a small delay and maybeSingle just in case
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    var profile = await _client
         .from('profiles')
         .select()
         .eq('id', response.user!.id)
-        .single();
+        .maybeSingle();
+        
+    if (profile == null) {
+      final newProfile = {
+        'id': response.user!.id,
+        'email': response.user!.email ?? '',
+        'full_name': name,
+        'role': 'admin',
+      };
+      await _client.from('profiles').insert(newProfile);
+      profile = newProfile;
+    } else {
+      profile['email'] = response.user!.email ?? '';
+    }
+    
     return UserModel.fromJson(profile);
   }
 
@@ -55,8 +86,23 @@ class AuthRemoteDatasource {
   Future<UserModel?> getCurrentUser() async {
     final user = _client.auth.currentUser;
     if (user == null) return null;
-    final profile =
-        await _client.from('profiles').select().eq('id', user.id).single();
+    
+    var profile = await _client.from('profiles').select().eq('id', user.id).maybeSingle();
+    
+    if (profile == null) {
+      // Profile missing! Let's create it
+      final newProfile = {
+        'id': user.id,
+        'email': user.email ?? '',
+        'full_name': user.userMetadata?['full_name'],
+        'role': 'admin',
+      };
+      await _client.from('profiles').insert(newProfile);
+      profile = newProfile;
+    } else {
+      profile['email'] = user.email ?? '';
+    }
+    
     return UserModel.fromJson(profile);
   }
 
@@ -73,6 +119,8 @@ class AuthRemoteDatasource {
     await _client.from('profiles').update(updates).eq('id', userId);
     final profile =
         await _client.from('profiles').select().eq('id', userId).single();
+    
+    profile['email'] = _client.auth.currentUser?.email ?? '';
     return UserModel.fromJson(profile);
   }
 }

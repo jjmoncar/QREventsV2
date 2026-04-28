@@ -185,6 +185,18 @@ class AppLocalizationsPt extends AppLocalizations {
   String get inactive => 'Inativo';
 
   @override
+  String get status_pending => 'Pendente';
+
+  @override
+  String get status_completed => 'Realizado';
+
+  @override
+  String get status_cancelled => 'Cancelado';
+
+  @override
+  String get invitationCancelled => 'Convite Cancelado';
+
+  @override
   String get event_wedding => 'Casamento';
 
   @override
@@ -407,4 +419,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String invitationCorporate(String guestName, String eventName, String link) {
     return 'Dear $guestName, you are formally invited to our corporate event: $eventName. Your QR access pass: $link';
   }
+
+  @override
+  String get retry => 'Tentar novamente';
+
+  @override
+  String get loginRequired => 'Você deve estar logado para ver seu perfil';
 }

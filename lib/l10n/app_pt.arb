@@ -156,5 +156,7 @@
       "eventName": { "type": "String" },
       "link": { "type": "String" }
     }
-  }
+  },
+  "retry": "Tentar novamente",
+  "loginRequired": "Você deve estar logado para ver seu perfil"
 }

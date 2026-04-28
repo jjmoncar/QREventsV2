@@ -186,11 +186,15 @@
     }
   },
   "invitationCorporate": "Estimado(a) {guestName}, le invitamos formalmente al evento corporativo: {eventName}. Su pase de acceso QR: {link}",
+  "retry": "Reintentar",
+  "loginRequired": "Debes iniciar sesión para ver tu perfil",
   "@invitationCorporate": {
     "placeholders": {
       "guestName": { "type": "String" },
       "eventName": { "type": "String" },
       "link": { "type": "String" }
     }
-  }
+  },
+  "retry": "Reintentar",
+  "loginRequired": "Debes iniciar sesión para ver tu perfil"
 }

@@ -18,9 +18,50 @@ class ProfilePage extends StatelessWidget {
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.profile)),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
+          if (state is AuthLoading || state is AuthInitial) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is AuthUnauthenticated) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.lock_outline, size: 64, color: AppColors.textSecondaryLight),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context)!.loginRequired),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => context.go('/login'),
+                    child: Text(AppLocalizations.of(context)!.login),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (state is AuthError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                  const SizedBox(height: 16),
+                  Text(state.message),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => context.read<AuthBloc>().add(AuthCheckSession()),
+                    child: Text(AppLocalizations.of(context)!.retry),
+                  ),
+                ],
+              ),
+            );
+          }
+
           if (state is! AuthAuthenticated) {
             return const Center(child: CircularProgressIndicator());
           }
+
           final user = state.user;
           return SingleChildScrollView(
             padding: const EdgeInsets.all(AppTheme.spacingMd),

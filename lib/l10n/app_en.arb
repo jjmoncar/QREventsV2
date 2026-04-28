@@ -192,5 +192,7 @@
       "eventName": { "type": "String" },
       "link": { "type": "String" }
     }
-  }
+  },
+  "retry": "Retry",
+  "loginRequired": "You must be logged in to view your profile"
 }

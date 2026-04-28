@@ -445,6 +445,30 @@ abstract class AppLocalizations {
   /// **'Inactive'**
   String get inactive;
 
+  /// No description provided for @status_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get status_pending;
+
+  /// No description provided for @status_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get status_completed;
+
+  /// No description provided for @status_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get status_cancelled;
+
+  /// No description provided for @invitationCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation Cancelled'**
+  String get invitationCancelled;
+
   /// No description provided for @event_wedding.
   ///
   /// In en, this message translates to:
@@ -852,6 +876,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dear {guestName}, you are formally invited to our corporate event: {eventName}. Your QR access pass: {link}'**
   String invitationCorporate(String guestName, String eventName, String link);
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @loginRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'You must be logged in to view your profile'**
+  String get loginRequired;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
