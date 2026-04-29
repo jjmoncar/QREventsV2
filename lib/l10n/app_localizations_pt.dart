@@ -425,4 +425,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get loginRequired => 'Você deve estar logado para ver seu perfil';
+
+  @override
+  String get errorEmailAlreadyRegistered => 'E-mail já cadastrado. Por favor, faça o login.';
 }

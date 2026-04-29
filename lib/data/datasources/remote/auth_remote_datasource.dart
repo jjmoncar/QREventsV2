@@ -49,27 +49,25 @@ class AuthRemoteDatasource {
       throw Exception('Error al registrar usuario');
     }
 
-    // Profile is created automatically by database trigger
-    // But we use a small delay and maybeSingle just in case
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Profile is created automatically by database trigger 'on_auth_user_created'
+    // We wait a bit for it to be visible in the public schema
+    await Future.delayed(const Duration(milliseconds: 1000));
     
-    var profile = await _client
+    final profile = await _client
         .from('profiles')
         .select()
         .eq('id', response.user!.id)
         .maybeSingle();
         
     if (profile == null) {
-      final newProfile = {
-        'id': response.user!.id,
-        'email': response.user!.email ?? '',
-        'full_name': name,
-        'role': 'admin',
-      };
-      await _client.from('profiles').insert(newProfile);
-      profile = newProfile;
-    } else {
-      profile['email'] = response.user!.email ?? '';
+      // If we still can't find it, we return a basic user model from Auth data
+      // This avoids the RLS error of trying to insert manually without a session
+      return UserModel(
+        id: response.user!.id,
+        email: response.user!.email ?? email,
+        name: name,
+        role: 'admin',
+      );
     }
     
     return UserModel.fromJson(profile);

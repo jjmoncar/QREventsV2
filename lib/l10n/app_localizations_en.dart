@@ -425,4 +425,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginRequired => 'You must be logged in to view your profile';
+
+  @override
+  String get errorEmailAlreadyRegistered => 'Email already registered. Please log in.';
 }

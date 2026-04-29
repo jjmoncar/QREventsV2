@@ -158,5 +158,6 @@
     }
   },
   "retry": "Tentar novamente",
-  "loginRequired": "Você deve estar logado para ver seu perfil"
+  "loginRequired": "Você deve estar logado para ver seu perfil",
+  "errorEmailAlreadyRegistered": "E-mail já cadastrado. Por favor, faça o login."
 }

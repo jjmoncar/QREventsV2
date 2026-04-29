@@ -48,13 +48,24 @@ class _RegisterPageState extends State<RegisterPage> {
           );
           context.go('/login');
         } else if (state is AuthError) {
+          final isDuplicateEmail = state.message.contains('ya está registrado');
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message),
+              content: Text(isDuplicateEmail 
+                ? AppLocalizations.of(context)!.errorEmailAlreadyRegistered
+                : state.message),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: isDuplicateEmail ? 4 : 2),
             ),
           );
+
+          if (isDuplicateEmail) {
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) context.go('/login');
+            });
+          }
         }
       },
       child: Scaffold(

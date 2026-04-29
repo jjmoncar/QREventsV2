@@ -194,5 +194,6 @@
     }
   },
   "retry": "Retry",
-  "loginRequired": "You must be logged in to view your profile"
+  "loginRequired": "You must be logged in to view your profile",
+  "errorEmailAlreadyRegistered": "Email already registered. Please log in."
 }

@@ -80,7 +80,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (msg.contains('Invalid login credentials')) {
       return 'Credenciales inválidas';
     }
-    if (msg.contains('User already registered')) {
+    if (msg.contains('User already registered') || msg.contains('already registered')) {
       return 'El correo ya está registrado';
     }
     if (msg.contains('Email not confirmed')) {

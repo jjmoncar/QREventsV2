@@ -196,5 +196,6 @@
     }
   },
   "retry": "Reintentar",
-  "loginRequired": "Debes iniciar sesión para ver tu perfil"
+  "loginRequired": "Debes iniciar sesión para ver tu perfil",
+  "errorEmailAlreadyRegistered": "El correo ya está registrado. Por favor, inicia sesión."
 }

@@ -888,6 +888,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You must be logged in to view your profile'**
   String get loginRequired;
+
+  /// No description provided for @errorEmailAlreadyRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Email already registered. Please log in.'**
+  String get errorEmailAlreadyRegistered;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
