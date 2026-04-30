@@ -443,14 +443,11 @@ class _GuestListPageState extends State<GuestListPage> {
         message = l10n.invitationMessage(guest.name, eventName, invitationLink);
     }
 
-    if (channel == 'whatsapp' && guest.whatsapp != null) {
-      final phone = guest.whatsapp!.replaceAll(RegExp(r'[^\d+]'), '');
-      final whatsappUrl = Uri.parse("whatsapp://send?phone=$phone&text=${Uri.encodeComponent(message)}");
-      
-      if (await canLaunchUrl(whatsappUrl)) {
-        await launchUrl(whatsappUrl);
+    if (channel == 'whatsapp') {
+      final file = await _generateQRFile(guest);
+      if (file != null) {
+        await Share.shareXFiles([XFile(file.path)], text: message);
       } else {
-        // Fallback to share
         await Share.share(message);
       }
     } else if (channel == 'email') {
@@ -466,7 +463,7 @@ class _GuestListPageState extends State<GuestListPage> {
     }
   }
 
-  Future<void> _shareQRImage(GuestEntity guest, EventEntity? event) async {
+  Future<File?> _generateQRFile(GuestEntity guest) async {
     try {
       final qrValidationResult = QrValidator.validate(
         data: guest.qrCodeToken ?? '',
@@ -490,13 +487,26 @@ class _GuestListPageState extends State<GuestListPage> {
         if (picData != null) {
           final file = File(path);
           await file.writeAsBytes(picData.buffer.asUint8List());
-          await Share.shareXFiles([XFile(path)], text: 'Código QR de ${guest.name} para ${event?.title ?? 'el evento'}');
+          return file;
         }
       }
     } catch (e) {
+      debugPrint('Error generating QR file: $e');
+    }
+    return null;
+  }
+
+  Future<void> _shareQRImage(GuestEntity guest, EventEntity? event) async {
+    final file = await _generateQRFile(guest);
+    if (file != null) {
+      await Share.shareXFiles(
+        [XFile(file.path)], 
+        text: 'Código QR de ${guest.name} para ${event?.title ?? 'el evento'}'
+      );
+    } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al compartir QR: $e')),
+          const SnackBar(content: Text('Error al generar la imagen del QR')),
         );
       }
     }
