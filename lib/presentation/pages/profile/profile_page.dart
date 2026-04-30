@@ -129,24 +129,7 @@ class ProfilePage extends StatelessWidget {
                     AppLocalizations.of(context)!.about, () {
                   context.push('/about');
                 }),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(AuthLogoutRequested());
-                    },
-                    icon: const Icon(Icons.logout, color: AppColors.error),
-                    label: Text(
-                      AppLocalizations.of(context)!.logout,
-                      style: const TextStyle(color: AppColors.error),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.error),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
+
               ],
             ),
           );

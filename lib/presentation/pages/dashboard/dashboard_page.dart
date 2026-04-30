@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../domain/entities/event.dart';
+import '../../blocs/auth/auth_event.dart';
 import '../../../domain/entities/guest.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/auth/auth_state.dart';
@@ -35,6 +36,20 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<AuthBloc>().add(AuthLogoutRequested());
+            },
+            icon: const Icon(Icons.logout, color: AppColors.error),
+            tooltip: AppLocalizations.of(context)!.logout,
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -50,7 +65,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 20),
                 _buildNextEventCard(),
                 const SizedBox(height: 20),
-                _buildStatsChart(),
+
                 const SizedBox(height: 20),
                 _buildScanButton(),
                 const SizedBox(height: 20),
@@ -185,137 +200,7 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildStatsChart() {
-    return BlocBuilder<GuestsBloc, GuestsState>(
-      builder: (context, state) {
-        int estimated = 0;
-        int confirmed = 0;
-        int pending = 0;
 
-        if (state is GuestsLoaded) {
-          estimated = state.totalInvited;
-          confirmed = state.totalCheckedIn;
-          pending = state.totalPending;
-        }
-
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.estimatedAttendance,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariantLight,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _legendDot(AppColors.primaryNavy),
-                        Text(' ${AppLocalizations.of(context)!.total}', style: const TextStyle(fontSize: 10)),
-                        const SizedBox(width: 8),
-                        _legendDot(AppColors.secondaryTeal),
-                        Text(' ${AppLocalizations.of(context)!.confirmed}',
-                            style: const TextStyle(fontSize: 10)),
-                        const SizedBox(width: 8),
-                        _legendDot(AppColors.textSecondaryLight),
-                        Text(' ${AppLocalizations.of(context)!.pending}',
-                            style: const TextStyle(fontSize: 10)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 180,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: (estimated > 0 ? estimated.toDouble() : 10) * 1.2,
-                    barGroups: [
-                      _barGroup(0, estimated.toDouble(),
-                          AppColors.primaryNavy),
-                      _barGroup(1, confirmed.toDouble(),
-                          AppColors.secondaryTeal),
-                      _barGroup(
-                          2, pending.toDouble(), AppColors.textSecondaryLight),
-                    ],
-                    titlesData: FlTitlesData(
-                      leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            final labels = [
-                              AppLocalizations.of(context)!.total,
-                              AppLocalizations.of(context)!.confirmed,
-                              AppLocalizations.of(context)!.pending
-                            ];
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                labels[value.toInt()],
-                                style: const TextStyle(fontSize: 11),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    gridData: const FlGridData(show: false),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _statPill(AppLocalizations.of(context)!.totalInvited, '$estimated',
-                      AppColors.primaryNavy),
-                  _statPill(AppLocalizations.of(context)!.confirmed, '$confirmed',
-                      AppColors.secondaryTeal),
-                  _statPill(AppLocalizations.of(context)!.pending, '$pending',
-                      AppColors.textSecondaryLight),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildScanButton() {
     return BlocBuilder<EventsBloc, EventsState>(
@@ -481,46 +366,9 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _legendDot(Color color) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
-  }
 
-  BarChartGroupData _barGroup(int x, double y, Color color) {
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: y,
-          color: color,
-          width: 32,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        ),
-      ],
-    );
-  }
 
-  Widget _statPill(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: color,
-          ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textSecondaryLight),
-        ),
-      ],
-    );
-  }
+
 
   String _formatDate(DateTime date) {
     const months = [

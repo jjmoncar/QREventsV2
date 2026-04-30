@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -89,6 +90,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
             SliverAppBar(
               expandedHeight: 200,
               pinned: true,
+              iconTheme: const IconThemeData(color: Colors.white),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.edit_outlined),
@@ -247,6 +249,91 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                       AppColors.warning),
                                 ],
                               ),
+                              const SizedBox(height: 24),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    AppLocalizations.of(context)!.estimatedAttendance,
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceVariantLight,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _legendDot(AppColors.primaryNavy),
+                                        Text(' ${AppLocalizations.of(context)!.total}',
+                                            style: const TextStyle(fontSize: 10)),
+                                        const SizedBox(width: 8),
+                                        _legendDot(AppColors.secondaryTeal),
+                                        Text(' ${AppLocalizations.of(context)!.confirmed}',
+                                            style: const TextStyle(fontSize: 10)),
+                                        const SizedBox(width: 8),
+                                        _legendDot(AppColors.warning),
+                                        Text(' ${AppLocalizations.of(context)!.pending}',
+                                            style: const TextStyle(fontSize: 10)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 160,
+                                child: BarChart(
+                                  BarChartData(
+                                    alignment: BarChartAlignment.spaceAround,
+                                    maxY: (state.totalInvited > 0 ? state.totalInvited.toDouble() : 10) *
+                                        1.2,
+                                    barGroups: [
+                                      _barGroup(0, state.totalInvited.toDouble(), AppColors.primaryNavy),
+                                      _barGroup(
+                                          1, state.totalCheckedIn.toDouble(), AppColors.secondaryTeal),
+                                      _barGroup(
+                                          2, state.totalPending.toDouble(), AppColors.warning),
+                                    ],
+                                    titlesData: FlTitlesData(
+                                      leftTitles: const AxisTitles(
+                                        sideTitles: SideTitles(showTitles: false),
+                                      ),
+                                      rightTitles: const AxisTitles(
+                                        sideTitles: SideTitles(showTitles: false),
+                                      ),
+                                      topTitles: const AxisTitles(
+                                        sideTitles: SideTitles(showTitles: false),
+                                      ),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          getTitlesWidget: (value, meta) {
+                                            final labels = [
+                                              AppLocalizations.of(context)!.total,
+                                              AppLocalizations.of(context)!.confirmed,
+                                              AppLocalizations.of(context)!.pending
+                                            ];
+                                            return Padding(
+                                              padding: const EdgeInsets.only(top: 8),
+                                              child: Text(
+                                                labels[value.toInt()],
+                                                style: const TextStyle(fontSize: 10),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    borderData: FlBorderData(show: false),
+                                    gridData: const FlGridData(show: false),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         );
@@ -291,6 +378,28 @@ class _EventDetailPageState extends State<EventDetailPage> {
         Text(label,
             style: const TextStyle(
                 fontSize: 12, color: AppColors.textSecondaryLight)),
+      ],
+    );
+  }
+
+  Widget _legendDot(Color color) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+
+  BarChartGroupData _barGroup(int x, double y, Color color) {
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          toY: y,
+          color: color,
+          width: 32,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+        ),
       ],
     );
   }

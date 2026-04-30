@@ -4,6 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -251,6 +255,40 @@ class _GuestListPageState extends State<GuestListPage> {
                                       tooltip:
                                           AppLocalizations.of(context)!.editGuest,
                                     ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline,
+                                          color: AppColors.error,
+                                          size: 20),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            title: Text(AppLocalizations.of(context)!.deleteGuest),
+                                            content: Text(AppLocalizations.of(context)!.deleteGuestConfirm(guest.name)),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.of(ctx).pop(false),
+                                                child: Text(AppLocalizations.of(context)!.cancel),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: () => Navigator.of(ctx).pop(true),
+                                                style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+                                                child: Text(AppLocalizations.of(context)!.delete),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        if (confirm == true) {
+                                          context.read<GuestsBloc>().add(
+                                            DeleteGuest(
+                                              guestId: guest.id,
+                                              eventId: widget.eventId,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      tooltip: AppLocalizations.of(context)!.delete,
+                                    ),
                                     if (guest.hasContactMethod)
                                       IconButton(
                                         icon: const Icon(Icons.send,
@@ -344,6 +382,17 @@ class _GuestListPageState extends State<GuestListPage> {
                   _processInvitation(guest, 'telegram', event);
                 },
               ),
+            const Divider(height: 32),
+            _invitationChannelTile(
+              icon: Icons.qr_code,
+              title: 'Compartir Imagen QR',
+              subtitle: 'Enviar el código QR como imagen',
+              color: AppColors.secondaryTeal,
+              onTap: () {
+                Navigator.pop(context);
+                _shareQRImage(guest, event);
+              },
+            ),
           ],
         ),
       ),
@@ -368,41 +417,88 @@ class _GuestListPageState extends State<GuestListPage> {
     );
   }
 
-  void _processInvitation(GuestEntity guest, String channel, EventEntity? event) {
+  void _processInvitation(GuestEntity guest, String channel, EventEntity? event) async {
     // 1. Notify Backend / Edge Function
     context.read<GuestsBloc>().add(SendInvitation(guest: guest, channel: channel));
 
-    // 2. Client-side Share for WA/Telegram
-    if (channel != 'email') {
-      final baseUrl = dotenv.env['NEXT_PUBLIC_APP_URL'] ?? 'https://guestly.app';
-      final invitationLink = '$baseUrl/invitation/${guest.qrCodeToken}';
-      final eventName = event?.title ?? AppLocalizations.of(context)!.eventName;
-      final eventType = event?.type ?? 'other';
-      
-      String message;
-      final l10n = AppLocalizations.of(context)!;
+    final baseUrl = dotenv.env['NEXT_PUBLIC_APP_URL'] ?? 'https://guestly.app';
+    final invitationLink = '$baseUrl/invitation/${guest.qrCodeToken}';
+    final eventName = event?.title ?? AppLocalizations.of(context)!.eventName;
+    final eventType = event?.type ?? 'other';
+    
+    final l10n = AppLocalizations.of(context)!;
+    String message;
 
-      switch (eventType) {
-        case 'boda':
-          message = l10n.invitationWedding(guest.name, eventName, invitationLink);
-          break;
-        case 'cumpleanos':
-          message = l10n.invitationBirthday(guest.name, eventName, invitationLink);
-          break;
-        case 'corporativo':
-          message = l10n.invitationCorporate(guest.name, eventName, invitationLink);
-          break;
-        default:
-          message = l10n.invitationMessage(guest.name, eventName, invitationLink);
+    switch (eventType) {
+      case 'boda':
+        message = l10n.invitationWedding(guest.name, eventName, invitationLink);
+        break;
+      case 'cumpleanos':
+        message = l10n.invitationBirthday(guest.name, eventName, invitationLink);
+        break;
+      case 'corporativo':
+        message = l10n.invitationCorporate(guest.name, eventName, invitationLink);
+        break;
+      default:
+        message = l10n.invitationMessage(guest.name, eventName, invitationLink);
+    }
+
+    if (channel == 'whatsapp' && guest.whatsapp != null) {
+      final phone = guest.whatsapp!.replaceAll(RegExp(r'[^\d+]'), '');
+      final whatsappUrl = Uri.parse("whatsapp://send?phone=$phone&text=${Uri.encodeComponent(message)}");
+      
+      if (await canLaunchUrl(whatsappUrl)) {
+        await launchUrl(whatsappUrl);
+      } else {
+        // Fallback to share
+        await Share.share(message);
       }
-      Share.share(message);
-    } else {
+    } else if (channel == 'email') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enviando invitación por Email con Arte Dinámico...'),
+        SnackBar(
+          content: Text('Enviando invitación por Email a ${guest.email}...'),
           backgroundColor: AppColors.primaryNavy,
         ),
       );
+    } else {
+      // Default fallback (Telegram or others)
+      await Share.share(message);
+    }
+  }
+
+  Future<void> _shareQRImage(GuestEntity guest, EventEntity? event) async {
+    try {
+      final qrValidationResult = QrValidator.validate(
+        data: guest.qrCodeToken ?? '',
+        version: QrVersions.auto,
+        errorCorrectionLevel: QrErrorCorrectLevel.L,
+      );
+
+      if (qrValidationResult.status == QrValidationStatus.valid) {
+        final qrCode = qrValidationResult.qrCode!;
+        final painter = QrPainter.withQr(
+          qr: qrCode,
+          color: const Color(0xFF000000),
+          emptyColor: const Color(0xFFFFFFFF),
+          gapless: true,
+        );
+
+        final directory = await getTemporaryDirectory();
+        final path = '${directory.path}/qr_${guest.id}.png';
+        final picData = await painter.toImageData(300);
+        
+        if (picData != null) {
+          final file = File(path);
+          await file.writeAsBytes(picData.buffer.asUint8List());
+          await Share.shareXFiles([XFile(path)], text: 'Código QR de ${guest.name} para ${event?.title ?? 'el evento'}');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al compartir QR: $e')),
+        );
+      }
     }
   }
 
