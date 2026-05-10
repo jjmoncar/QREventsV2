@@ -23,4 +23,14 @@ class QrRepositoryImpl implements QrRepository {
       return Left('Error al validar QR: $e');
     }
   }
+
+  @override
+  Future<Either<String, GuestEntity>> getGuestByToken(String token) async {
+    try {
+      final guest = await _remoteDatasource.getGuestByToken(token);
+      return Right(guest);
+    } catch (e) {
+      return Left('Error al buscar invitado: $e');
+    }
+  }
 }

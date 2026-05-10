@@ -7,6 +7,7 @@ import 'package:vibration/vibration.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../domain/entities/qr_validation.dart';
+import '../../../domain/entities/guest.dart';
 import '../../blocs/scanner/scanner_bloc.dart';
 import '../../blocs/scanner/scanner_event.dart';
 import '../../blocs/scanner/scanner_state.dart';
@@ -26,7 +27,6 @@ class _ScannerPageState extends State<ScannerPage>
     facing: CameraFacing.back,
   );
   bool _isProcessing = false;
-  int _groupCount = 1;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -53,7 +53,12 @@ class _ScannerPageState extends State<ScannerPage>
   Widget build(BuildContext context) {
     return BlocListener<ScannerBloc, ScannerState>(
       listener: (context, state) async {
-        if (state is ScannerResult) {
+        if (state is GuestInfoLoaded) {
+          _isProcessing = false;
+          if (mounted) {
+            _handleGuestInfo(state.qrToken, state.guest as GuestEntity);
+          }
+        } else if (state is ScannerResult) {
           _isProcessing = false;
           // Haptic feedback
           if ((await Vibration.hasVibrator()) == true) {
@@ -65,6 +70,7 @@ class _ScannerPageState extends State<ScannerPage>
         } else if (state is ScannerError) {
           _isProcessing = false;
           if (mounted) {
+            _cameraController.start(); // Restart camera on error
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -142,60 +148,19 @@ class _ScannerPageState extends State<ScannerPage>
               ),
             ),
 
-            // Group Counter (bottom)
+            // Info Text (bottom)
             Positioned(
-              bottom: 40,
+              bottom: 60,
               left: 0,
               right: 0,
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 40),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.peopleEntering,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle,
-                              color: Colors.white),
-                          onPressed: _groupCount > 1
-                              ? () => setState(() => _groupCount--)
-                              : null,
-                        ),
-                        Text(
-                          '$_groupCount',
-                          style: const TextStyle(
-                            color: AppColors.secondaryTealLight,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle,
-                              color: Colors.white),
-                          onPressed: () =>
-                              setState(() => _groupCount++),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    AppLocalizations.of(context)!.pointCameraAtQr,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+              child: Text(
+                AppLocalizations.of(context)!.pointCameraAtQr,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
@@ -210,14 +175,106 @@ class _ScannerPageState extends State<ScannerPage>
     if (barcode?.rawValue == null) return;
 
     _isProcessing = true;
+    _cameraController.stop(); // Stop camera while processing or showing dialog
+    
+    context.read<ScannerBloc>().add(FetchGuestInfo(barcode!.rawValue!));
+  }
+
+  void _handleGuestInfo(String token, GuestEntity guest) async {
+    int count = 1;
+    
+    // If guest is part of a group, ask for count
+    if (guest.totalGuests > 1) {
+      final pickedCount = await _showGroupCountDialog(guest);
+      if (pickedCount == null) {
+        // User cancelled the dialog
+        _isProcessing = false;
+        _cameraController.start();
+        context.read<ScannerBloc>().add(ResetScanner());
+        return;
+      }
+      count = pickedCount;
+    }
+
     final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
-    context.read<ScannerBloc>().add(
-          ScanQrCode(
-            qrToken: barcode!.rawValue!,
-            scannedBy: userId,
-            count: _groupCount,
-          ),
+    if (mounted) {
+      context.read<ScannerBloc>().add(
+            ScanQrCode(
+              qrToken: token,
+              scannedBy: userId,
+              count: count,
+            ),
+          );
+    }
+  }
+
+  Future<int?> _showGroupCountDialog(GuestEntity guest) async {
+    int currentCount = guest.totalGuests - guest.guests_checked_in;
+    if (currentCount <= 0) return 1; // Should not happen if SQL logic is right
+
+    return await showDialog<int>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        int tempCount = currentCount;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(guest.name),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('¿Cuántas personas están ingresando?'),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove_circle_outline),
+                        onPressed: tempCount > 1
+                            ? () => setDialogState(() => tempCount--)
+                            : null,
+                      ),
+                      Text(
+                        '$tempCount',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryNavy,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline),
+                        onPressed: tempCount < currentCount
+                            ? () => setDialogState(() => tempCount++)
+                            : null,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    'Máximo disponible: $currentCount',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(null),
+                  child: const Text('CANCELAR'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(ctx).pop(tempCount),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryNavy,
+                  ),
+                  child: const Text('CONFIRMAR'),
+                ),
+              ],
+            );
+          },
         );
+      },
+    );
   }
 
   void _showResultOverlay(QrValidationResult result) {
@@ -283,7 +340,7 @@ class _ScannerPageState extends State<ScannerPage>
                 onPressed: () {
                   Navigator.of(ctx).pop();
                   context.read<ScannerBloc>().add(ResetScanner());
-                  setState(() => _groupCount = 1);
+                  _cameraController.start(); // Restart camera
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,

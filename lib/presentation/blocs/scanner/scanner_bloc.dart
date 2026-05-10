@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/repositories/qr_repository.dart';
+import '../../../domain/entities/guest.dart';
 import 'scanner_event.dart';
 import 'scanner_state.dart';
 
@@ -8,7 +9,18 @@ class ScannerBloc extends Bloc<ScannerEvent, ScannerState> {
 
   ScannerBloc(this._qrRepository) : super(ScannerReady()) {
     on<ScanQrCode>(_onScanQr);
+    on<FetchGuestInfo>(_onFetchGuest);
     on<ResetScanner>(_onReset);
+  }
+
+  Future<void> _onFetchGuest(
+      FetchGuestInfo event, Emitter<ScannerState> emit) async {
+    emit(ScannerProcessing());
+    final result = await _qrRepository.getGuestByToken(event.qrToken);
+    result.fold(
+      (error) => emit(ScannerError(error)),
+      (guest) => emit(GuestInfoLoaded(event.qrToken, guest)),
+    );
   }
 
   Future<void> _onScanQr(

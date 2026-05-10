@@ -5,4 +5,6 @@ abstract class QrRepository {
   Future<Either<String, QrValidationResult>> validateQr(
       String qrToken, String scannedBy,
       {int count = 1});
+
+  Future<Either<String, GuestEntity>> getGuestByToken(String token);
 }

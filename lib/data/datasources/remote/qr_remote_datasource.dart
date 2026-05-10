@@ -17,4 +17,13 @@ class QrRemoteDatasource {
 
     return QrValidationResult.fromJson(response as Map<String, dynamic>);
   }
+
+  Future<GuestModel> getGuestByToken(String token) async {
+    final response = await _client
+        .from('guests')
+        .select()
+        .eq('qr_code_token', token)
+        .single();
+    return GuestModel.fromJson(response);
+  }
 }

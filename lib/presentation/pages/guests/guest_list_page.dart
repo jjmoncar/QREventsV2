@@ -444,11 +444,22 @@ class _GuestListPageState extends State<GuestListPage> {
     }
 
     if (channel == 'whatsapp') {
-      final file = await _generateQRFile(guest);
-      if (file != null) {
-        await Share.shareXFiles([XFile(file.path)], text: message);
+      String phoneNumber = guest.whatsapp!;
+      // Clean phone number: keep only digits
+      phoneNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
+      
+      final whatsappUrl = Uri.parse("https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}");
+      
+      if (await canLaunchUrl(whatsappUrl)) {
+        await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
       } else {
-        await Share.share(message);
+        // Fallback to share sheet if wa.me fails
+        final file = await _generateQRFile(guest);
+        if (file != null) {
+          await Share.shareXFiles([XFile(file.path)], text: message);
+        } else {
+          await Share.share(message);
+        }
       }
     } else if (channel == 'email') {
       ScaffoldMessenger.of(context).showSnackBar(

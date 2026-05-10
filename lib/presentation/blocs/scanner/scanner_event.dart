@@ -20,3 +20,10 @@ class ScanQrCode extends ScannerEvent {
 }
 
 class ResetScanner extends ScannerEvent {}
+
+class FetchGuestInfo extends ScannerEvent {
+  final String qrToken;
+  const FetchGuestInfo(this.qrToken);
+  @override
+  List<Object?> get props => [qrToken];
+}

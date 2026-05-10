@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/qr_validation.dart';
+import '../../../domain/entities/guest.dart';
 
 abstract class ScannerState extends Equatable {
   const ScannerState();
@@ -23,4 +24,12 @@ class ScannerError extends ScannerState {
   const ScannerError(this.message);
   @override
   List<Object?> get props => [message];
+}
+
+class GuestInfoLoaded extends ScannerState {
+  final String qrToken;
+  final dynamic guest; // Use GuestEntity
+  const GuestInfoLoaded(this.qrToken, this.guest);
+  @override
+  List<Object?> get props => [qrToken, guest];
 }
