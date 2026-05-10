@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../domain/entities/qr_validation.dart';
+import '../../domain/entities/guest.dart';
 import '../../domain/repositories/qr_repository.dart';
 import '../datasources/remote/qr_remote_datasource.dart';
 

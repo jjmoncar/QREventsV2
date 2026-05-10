@@ -209,7 +209,7 @@ class _ScannerPageState extends State<ScannerPage>
   }
 
   Future<int?> _showGroupCountDialog(GuestEntity guest) async {
-    int currentCount = guest.totalGuests - guest.guests_checked_in;
+    int currentCount = guest.totalGuests - guest.guestsCheckedIn;
     if (currentCount <= 0) return 1; // Should not happen if SQL logic is right
 
     return await showDialog<int>(

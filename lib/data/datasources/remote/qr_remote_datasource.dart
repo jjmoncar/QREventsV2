@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../domain/entities/qr_validation.dart';
+import '../../models/guest_model.dart';
 
 class QrRemoteDatasource {
   final SupabaseClient _client;

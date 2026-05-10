@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../entities/qr_validation.dart';
+import '../entities/guest.dart';
 
 abstract class QrRepository {
   Future<Either<String, QrValidationResult>> validateQr(
