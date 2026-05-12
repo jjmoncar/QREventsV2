@@ -443,20 +443,24 @@ class _GuestListPageState extends State<GuestListPage> {
         message = l10n.invitationMessage(guest.name, eventName, invitationLink);
     }
 
+    final file = await _generateQRFile(guest);
+
     if (channel == 'whatsapp') {
-      String phoneNumber = guest.whatsapp!;
-      // Clean phone number: keep only digits
-      phoneNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
-      
-      final whatsappUrl = Uri.parse("https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}");
-      
-      if (await canLaunchUrl(whatsappUrl)) {
-        await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+      if (file != null) {
+        // Usamos Share.shareXFiles para poder enviar la imagen del QR.
+        // Las URLs de wa.me no permiten adjuntar archivos.
+        await Share.shareXFiles(
+          [XFile(file.path)], 
+          text: message
+        );
       } else {
-        // Fallback to share sheet if wa.me fails
-        final file = await _generateQRFile(guest);
-        if (file != null) {
-          await Share.shareXFiles([XFile(file.path)], text: message);
+        // Fallback a solo texto si falla la generación del QR
+        String phoneNumber = guest.whatsapp!;
+        phoneNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
+        final whatsappUrl = Uri.parse("https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}");
+        
+        if (await canLaunchUrl(whatsappUrl)) {
+          await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
         } else {
           await Share.share(message);
         }
@@ -470,7 +474,11 @@ class _GuestListPageState extends State<GuestListPage> {
       );
     } else {
       // Default fallback (Telegram or others)
-      await Share.share(message);
+      if (file != null) {
+        await Share.shareXFiles([XFile(file.path)], text: message);
+      } else {
+        await Share.share(message);
+      }
     }
   }
 
