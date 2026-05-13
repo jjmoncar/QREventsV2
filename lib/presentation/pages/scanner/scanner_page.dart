@@ -27,6 +27,7 @@ class _ScannerPageState extends State<ScannerPage>
     facing: CameraFacing.back,
   );
   bool _isProcessing = false;
+  bool _isCameraActive = true;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -67,15 +68,12 @@ class _ScannerPageState extends State<ScannerPage>
             _showResultOverlay(state.result);
           }
         } else if (state is ScannerError) {
-          setState(() => _isProcessing = false);
+          setState(() {
+            _isProcessing = false;
+            _isCameraActive = false;
+          });
           if (mounted) {
-            _cameraController.start(); // Restart camera on error
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
+            _showErrorOverlay(state.message);
           }
         }
       },
@@ -103,65 +101,71 @@ class _ScannerPageState extends State<ScannerPage>
         body: Stack(
           children: [
             // Camera
-            MobileScanner(
-              controller: _cameraController,
-              onDetect: _onDetect,
-            ),
+            if (_isCameraActive)
+              MobileScanner(
+                controller: _cameraController,
+                onDetect: _onDetect,
+              )
+            else
+              Container(color: Colors.black),
 
-            // Scan Overlay
-            Center(
-              child: AnimatedBuilder(
-                animation: _pulseAnimation,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _pulseAnimation.value,
-                    child: Container(
-                      width: 280,
-                      height: 280,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppColors.secondaryTealLight,
-                          width: 3,
+            if (_isCameraActive) ...[
+              // Scan Overlay
+              Center(
+                child: AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _pulseAnimation.value,
+                      child: Container(
+                        width: 280,
+                        height: 280,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.secondaryTealLight,
+                            width: 3,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
                         ),
-                        borderRadius: BorderRadius.circular(24),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Corner Markers
-            Center(
-              child: SizedBox(
-                width: 280,
-                height: 280,
-                child: Stack(
-                  children: [
-                    _cornerMarker(Alignment.topLeft),
-                    _cornerMarker(Alignment.topRight),
-                    _cornerMarker(Alignment.bottomLeft),
-                    _cornerMarker(Alignment.bottomRight),
-                  ],
+                    );
+                  },
                 ),
               ),
-            ),
+
+              // Corner Markers
+              Center(
+                child: SizedBox(
+                  width: 280,
+                  height: 280,
+                  child: Stack(
+                    children: [
+                      _cornerMarker(Alignment.topLeft),
+                      _cornerMarker(Alignment.topRight),
+                      _cornerMarker(Alignment.bottomLeft),
+                      _cornerMarker(Alignment.bottomRight),
+                    ],
+                  ),
+                ),
+              ),
+            ],
 
             // Info Text (bottom)
-            Positioned(
-              bottom: 60,
-              left: 0,
-              right: 0,
-              child: Text(
-                AppLocalizations.of(context)!.pointCameraAtQr,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+            if (_isCameraActive)
+              Positioned(
+                bottom: 60,
+                left: 0,
+                right: 0,
+                child: Text(
+                  AppLocalizations.of(context)!.pointCameraAtQr,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-            ),
 
             // Processing Overlay
             if (_isProcessing)
@@ -181,12 +185,15 @@ class _ScannerPageState extends State<ScannerPage>
 
 
   void _onDetect(BarcodeCapture capture) {
-    if (_isProcessing) return;
+    if (_isProcessing || !_isCameraActive) return;
     final barcode = capture.barcodes.firstOrNull;
     if (barcode?.rawValue == null) return;
 
-    setState(() => _isProcessing = true);
-    _cameraController.stop(); // Stop camera while processing or showing dialog
+    setState(() {
+      _isProcessing = true;
+      _isCameraActive = false;
+    });
+    _cameraController.stop(); 
     
     context.read<ScannerBloc>().add(FetchGuestInfo(barcode!.rawValue!));
   }
@@ -199,7 +206,10 @@ class _ScannerPageState extends State<ScannerPage>
       final pickedCount = await _showGroupCountDialog(guest);
       if (pickedCount == null) {
         // User cancelled the dialog
-        _isProcessing = false;
+        setState(() {
+          _isProcessing = false;
+          _isCameraActive = true;
+        });
         _cameraController.start();
         context.read<ScannerBloc>().add(ResetScanner());
         return;
@@ -364,6 +374,7 @@ class _ScannerPageState extends State<ScannerPage>
                 onPressed: () {
                   Navigator.of(ctx).pop();
                   context.read<ScannerBloc>().add(ResetScanner());
+                  setState(() => _isCameraActive = true);
                   _cameraController.start(); // Restart camera
                 },
                 style: ElevatedButton.styleFrom(
@@ -379,7 +390,57 @@ class _ScannerPageState extends State<ScannerPage>
     );
   }
 
+  void _showErrorOverlay(String message) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(32),
+        decoration: const BoxDecoration(
+          color: AppColors.error,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 64),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.read<ScannerBloc>().add(ResetScanner());
+                  setState(() => _isCameraActive = true);
+                  _cameraController.start();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.error,
+                ),
+                child: Text(AppLocalizations.of(context)!.continueScanning),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _cornerMarker(Alignment alignment) {
+
     return Align(
       alignment: alignment,
       child: Container(

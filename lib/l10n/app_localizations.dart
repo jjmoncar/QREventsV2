@@ -814,8 +814,8 @@ abstract class AppLocalizations {
   /// No description provided for @invitationMessage.
   ///
   /// In en, this message translates to:
-  /// **'Hi {guestName}! You are invited to {eventName}. Your QR invitation is: {link}'**
-  String invitationMessage(String guestName, String eventName, String link);
+  /// **'Hi {guestName}! You are invited to {eventName}. Your QR invitation is attached.'**
+  String invitationMessage(String guestName, String eventName);
 
   /// No description provided for @editEvent.
   ///
@@ -862,20 +862,20 @@ abstract class AppLocalizations {
   /// No description provided for @invitationWedding.
   ///
   /// In en, this message translates to:
-  /// **'Hi {guestName}! We are happy to invite you to our Wedding: {eventName}. Get your QR pass here: {link}'**
-  String invitationWedding(String guestName, String eventName, String link);
+  /// **'Hi {guestName}! We are happy to invite you to our Wedding: {eventName}. Please present the attached QR pass upon entry.'**
+  String invitationWedding(String guestName, String eventName);
 
   /// No description provided for @invitationBirthday.
   ///
   /// In en, this message translates to:
-  /// **'Hi {guestName}! I\'m waiting for you to celebrate my birthday: {eventName}. Your QR pass is: {link}'**
-  String invitationBirthday(String guestName, String eventName, String link);
+  /// **'Hi {guestName}! I\'m waiting for you to celebrate my birthday: {eventName}. Your QR pass is attached.'**
+  String invitationBirthday(String guestName, String eventName);
 
   /// No description provided for @invitationCorporate.
   ///
   /// In en, this message translates to:
-  /// **'Dear {guestName}, you are formally invited to our corporate event: {eventName}. Your QR access pass: {link}'**
-  String invitationCorporate(String guestName, String eventName, String link);
+  /// **'Dear {guestName}, you are formally invited to our corporate event: {eventName}. Your QR access pass is attached.'**
+  String invitationCorporate(String guestName, String eventName);
 
   /// No description provided for @retry.
   ///

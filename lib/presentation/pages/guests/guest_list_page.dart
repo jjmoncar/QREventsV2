@@ -113,7 +113,7 @@ class _GuestListPageState extends State<GuestListPage> {
                     );
                 }
               },
-              buildWhen: (previous, current) =\u003e 
+              buildWhen: (previous, current) => 
                 current is GuestsLoading || 
                 current is GuestsLoaded || 
                 current is GuestsError,
@@ -143,7 +143,7 @@ class _GuestListPageState extends State<GuestListPage> {
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
-                            onPressed: () =\u003e context.push(
+                            onPressed: () => context.push(
                                 '/events/${widget.eventId}/guests/add'),
                             icon: const Icon(Icons.person_add),
                             label: Text(AppLocalizations.of(context)!
@@ -183,19 +183,19 @@ class _GuestListPageState extends State<GuestListPage> {
                           confirmDismiss: (_) async {
                             return await showDialog(
                               context: context,
-                              builder: (ctx) =\u003e AlertDialog(
+                              builder: (ctx) => AlertDialog(
                                 title:
                                     Text(AppLocalizations.of(context)!.deleteGuest),
                                 content: Text(
                                     AppLocalizations.of(context)!.deleteGuestConfirm(guest.name)),
                                 actions: [
                                   TextButton(
-                                    onPressed: () =\u003e
+                                    onPressed: () =>
                                         Navigator.of(ctx).pop(false),
                                     child: Text(AppLocalizations.of(context)!.cancel),
                                   ),
                                   ElevatedButton(
-                                    onPressed: () =\u003e
+                                    onPressed: () =>
                                         Navigator.of(ctx).pop(true),
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor:
@@ -284,7 +284,7 @@ class _GuestListPageState extends State<GuestListPage> {
                                       icon: const Icon(Icons.edit_outlined,
                                           color: AppColors.primaryNavy,
                                           size: 20),
-                                      onPressed: () =\u003e context.push(
+                                      onPressed: () => context.push(
                                         '/events/${widget.eventId}/guests/add',
                                         extra: guest,
                                       ),
@@ -296,18 +296,18 @@ class _GuestListPageState extends State<GuestListPage> {
                                           color: AppColors.error,
                                           size: 20),
                                       onPressed: () async {
-                                        final confirm = await showDialog\u003cbool\u003e(
+                                        final confirm = await showDialog<bool>(
                                           context: context,
-                                          builder: (ctx) =\u003e AlertDialog(
+                                          builder: (ctx) => AlertDialog(
                                             title: Text(AppLocalizations.of(context)!.deleteGuest),
                                             content: Text(AppLocalizations.of(context)!.deleteGuestConfirm(guest.name)),
                                             actions: [
                                               TextButton(
-                                                onPressed: () =\u003e Navigator.of(ctx).pop(false),
+                                                onPressed: () => Navigator.of(ctx).pop(false),
                                                 child: Text(AppLocalizations.of(context)!.cancel),
                                               ),
                                               ElevatedButton(
-                                                onPressed: () =\u003e Navigator.of(ctx).pop(true),
+                                                onPressed: () => Navigator.of(ctx).pop(true),
                                                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
                                                 child: Text(AppLocalizations.of(context)!.delete),
                                               ),
@@ -315,7 +315,7 @@ class _GuestListPageState extends State<GuestListPage> {
                                           ),
                                         );
                                         if (confirm == true) {
-                                          context.read\u003cGuestsBloc\u003e().add(
+                                          context.read<GuestsBloc>().add(
                                             DeleteGuest(
                                               guestId: guest.id,
                                               eventId: widget.eventId,
@@ -330,7 +330,7 @@ class _GuestListPageState extends State<GuestListPage> {
                                         icon: const Icon(Icons.send,
                                             color: AppColors.secondaryTeal,
                                             size: 20),
-                                        onPressed: () =\u003e
+                                        onPressed: () =>
                                             _sendInvitation(guest, state.event),
                                         tooltip: AppLocalizations.of(context)!
                                             .sendInvitation,
@@ -345,7 +345,7 @@ class _GuestListPageState extends State<GuestListPage> {
                       ),
                     );
                   }
-                  if (state is GuestsError \u0026\u0026 state.message.contains('obtener')) {
+                  if (state is GuestsError && state.message.contains('obtener')) {
                     return Center(child: Text(state.message));
                   }
                   return const SizedBox();
@@ -395,28 +395,6 @@ class _GuestListPageState extends State<GuestListPage> {
                 onTap: () {
                   Navigator.pop(context);
                   _processInvitation(guest, 'email', event);
-                },
-              ),
-            if (guest.hasWhatsApp)
-              _invitationChannelTile(
-                icon: Icons.chat_bubble_outline,
-                title: 'WhatsApp',
-                subtitle: guest.whatsapp!,
-                color: Colors.green,
-                onTap: () {
-                  Navigator.pop(context);
-                  _processInvitation(guest, 'whatsapp', event);
-                },
-              ),
-            if (guest.hasTelegram)
-              _invitationChannelTile(
-                icon: Icons.telegram,
-                title: 'Telegram',
-                subtitle: guest.telegram!,
-                color: Colors.blue,
-                onTap: () {
-                  Navigator.pop(context);
-                  _processInvitation(guest, 'telegram', event);
                 },
               ),
             const Divider(height: 32),
@@ -481,30 +459,10 @@ class _GuestListPageState extends State<GuestListPage> {
 
     final file = await _generateQRFile(guest);
 
-    if (channel == 'whatsapp') {
-      if (file != null) {
-        // Usamos Share.shareXFiles para poder enviar la imagen del QR.
-        // Las URLs de wa.me no permiten adjuntar archivos.
-        await Share.shareXFiles(
-          [XFile(file.path)], 
-          text: message
-        );
-      } else {
-        // Fallback a solo texto si falla la generación del QR
-        String phoneNumber = guest.whatsapp!;
-        phoneNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
-        final whatsappUrl = Uri.parse("https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}");
-        
-        if (await canLaunchUrl(whatsappUrl)) {
-          await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
-        } else {
-          await Share.share(message);
-        }
-      }
-    } else if (channel == 'email') {
+    if (channel == 'email') {
       // Feedback is now handled by BlocConsumer
     } else {
-      // Default fallback (Telegram or others)
+      // Default fallback (Share QR Image)
       if (file != null) {
         await Share.shareXFiles([XFile(file.path)], text: message);
       } else {

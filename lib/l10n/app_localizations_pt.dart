@@ -378,8 +378,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get events => 'Eventos';
 
   @override
-  String invitationMessage(String guestName, String eventName, String link) {
-    return 'Olá $guestName! Você está convidado para o evento $eventName. Seu convite QR é: $link';
+  String invitationMessage(String guestName, String eventName) {
+    return 'Olá $guestName! Você está convidado para o evento $eventName. Seu convite QR está em anexo.';
   }
 
   @override
@@ -406,18 +406,18 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String invitationWedding(String guestName, String eventName, String link) {
-    return 'Hi $guestName! We are happy to invite you to our Wedding: $eventName. Get your QR pass here: $link';
+  String invitationWedding(String guestName, String eventName) {
+    return 'Hi $guestName! We are happy to invite you to our Wedding: $eventName. Please present the attached QR pass upon entry.';
   }
 
   @override
-  String invitationBirthday(String guestName, String eventName, String link) {
-    return 'Hi $guestName! I\'m waiting for you to celebrate my birthday: $eventName. Your QR pass is: $link';
+  String invitationBirthday(String guestName, String eventName) {
+    return 'Hi $guestName! I\'m waiting for you to celebrate my birthday: $eventName. Your QR pass is attached.';
   }
 
   @override
-  String invitationCorporate(String guestName, String eventName, String link) {
-    return 'Dear $guestName, you are formally invited to our corporate event: $eventName. Your QR access pass: $link';
+  String invitationCorporate(String guestName, String eventName) {
+    return 'Dear $guestName, you are formally invited to our corporate event: $eventName. Your QR access pass is attached.';
   }
 
   @override

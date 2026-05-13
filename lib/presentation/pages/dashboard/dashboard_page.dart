@@ -454,12 +454,9 @@ class _DashboardPageState extends State<DashboardPage> {
             if (guest.isGroup)
               _detailItem(Icons.group_outlined, AppLocalizations.of(context)!.groupInvitation(guest.totalGuests), 
                           '${guest.guestsCheckedIn} ${AppLocalizations.of(context)!.confirmed}'),
-            if (guest.whatsapp?.isNotEmpty ?? false)
-              _detailItem(Icons.chat_outlined, AppLocalizations.of(context)!.whatsapp, guest.whatsapp!),
-            if (guest.telegram?.isNotEmpty ?? false)
-              _detailItem(Icons.telegram_outlined, AppLocalizations.of(context)!.telegram, guest.telegram!),
             if (guest.email?.isNotEmpty ?? false)
               _detailItem(Icons.email_outlined, AppLocalizations.of(context)!.email, guest.email!),
+
             if (guest.notes?.isNotEmpty ?? false) ...[
               const SizedBox(height: 16),
               Text(
