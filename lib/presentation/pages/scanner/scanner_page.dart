@@ -54,12 +54,11 @@ class _ScannerPageState extends State<ScannerPage>
     return BlocListener<ScannerBloc, ScannerState>(
       listener: (context, state) async {
         if (state is GuestInfoLoaded) {
-          _isProcessing = false;
           if (mounted) {
             _handleGuestInfo(state.qrToken, state.guest as GuestEntity);
           }
         } else if (state is ScannerResult) {
-          _isProcessing = false;
+          setState(() => _isProcessing = false);
           // Haptic feedback
           if ((await Vibration.hasVibrator()) == true) {
             Vibration.vibrate(duration: state.result.isSuccess ? 100 : 300);
@@ -68,7 +67,7 @@ class _ScannerPageState extends State<ScannerPage>
             _showResultOverlay(state.result);
           }
         } else if (state is ScannerError) {
-          _isProcessing = false;
+          setState(() => _isProcessing = false);
           if (mounted) {
             _cameraController.start(); // Restart camera on error
             ScaffoldMessenger.of(context).showSnackBar(
@@ -163,18 +162,30 @@ class _ScannerPageState extends State<ScannerPage>
                 ),
               ),
             ),
+
+            // Processing Overlay
+            if (_isProcessing)
+              Container(
+                color: Colors.black.withValues(alpha: 0.6),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.secondaryTealLight,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
+
   void _onDetect(BarcodeCapture capture) {
     if (_isProcessing) return;
     final barcode = capture.barcodes.firstOrNull;
     if (barcode?.rawValue == null) return;
 
-    _isProcessing = true;
+    setState(() => _isProcessing = true);
     _cameraController.stop(); // Stop camera while processing or showing dialog
     
     context.read<ScannerBloc>().add(FetchGuestInfo(barcode!.rawValue!));
@@ -294,9 +305,22 @@ class _ScannerPageState extends State<ScannerPage>
         bgColor = AppColors.error;
         icon = Icons.block;
         break;
+      case QrValidationType.expired:
+        bgColor = AppColors.error;
+        icon = Icons.event_busy;
+        break;
+      case QrValidationType.early_date:
+        bgColor = AppColors.warning;
+        icon = Icons.event_note;
+        break;
+      case QrValidationType.early_time:
+        bgColor = AppColors.warning;
+        icon = Icons.access_time;
+        break;
       default:
         bgColor = AppColors.error;
         icon = Icons.cancel;
+
     }
 
     showModalBottomSheet(

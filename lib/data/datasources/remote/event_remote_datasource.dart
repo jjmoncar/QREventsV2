@@ -10,6 +10,9 @@ class EventRemoteDatasource {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw Exception('No autenticado');
 
+    // Passive cleanup of expired events
+    await _client.rpc('finalize_expired_events');
+
     final response = await _client
         .from('events')
         .select('*, guests(total_guests, guests_checked_in, status, attendance_status, qr_code_token)')
@@ -50,6 +53,9 @@ class EventRemoteDatasource {
   Future<EventModel?> getNextEvent() async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw Exception('No autenticado');
+
+    // Passive cleanup of expired events
+    await _client.rpc('finalize_expired_events');
 
     final response = await _client
         .from('events')

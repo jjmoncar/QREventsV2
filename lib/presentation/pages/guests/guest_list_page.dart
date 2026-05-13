@@ -80,7 +80,43 @@ class _GuestListPageState extends State<GuestListPage> {
 
           // Guest List
           Expanded(
-            child: BlocBuilder<GuestsBloc, GuestsState>(
+            child: BlocConsumer<GuestsBloc, GuestsState>(
+              listener: (context, state) {
+                if (state is InvitationSending) {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      const SnackBar(
+                        content: Text('Enviando invitación...'),
+                        backgroundColor: AppColors.primaryNavy,
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                } else if (state is InvitationSent) {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: AppColors.secondaryTeal,
+                      ),
+                    );
+                } else if (state is GuestsError) {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: AppColors.error,
+                        duration: const Duration(seconds: 4),
+                      ),
+                    );
+                }
+              },
+              buildWhen: (previous, current) =\u003e 
+                current is GuestsLoading || 
+                current is GuestsLoaded || 
+                current is GuestsError,
               builder: (context, state) {
                 if (state is GuestsLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -107,7 +143,7 @@ class _GuestListPageState extends State<GuestListPage> {
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
-                            onPressed: () => context.push(
+                            onPressed: () =\u003e context.push(
                                 '/events/${widget.eventId}/guests/add'),
                             icon: const Icon(Icons.person_add),
                             label: Text(AppLocalizations.of(context)!
@@ -147,19 +183,19 @@ class _GuestListPageState extends State<GuestListPage> {
                           confirmDismiss: (_) async {
                             return await showDialog(
                               context: context,
-                              builder: (ctx) => AlertDialog(
+                              builder: (ctx) =\u003e AlertDialog(
                                 title:
                                     Text(AppLocalizations.of(context)!.deleteGuest),
                                 content: Text(
                                     AppLocalizations.of(context)!.deleteGuestConfirm(guest.name)),
                                 actions: [
                                   TextButton(
-                                    onPressed: () =>
+                                    onPressed: () =\u003e
                                         Navigator.of(ctx).pop(false),
                                     child: Text(AppLocalizations.of(context)!.cancel),
                                   ),
                                   ElevatedButton(
-                                    onPressed: () =>
+                                    onPressed: () =\u003e
                                         Navigator.of(ctx).pop(true),
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor:
@@ -248,7 +284,7 @@ class _GuestListPageState extends State<GuestListPage> {
                                       icon: const Icon(Icons.edit_outlined,
                                           color: AppColors.primaryNavy,
                                           size: 20),
-                                      onPressed: () => context.push(
+                                      onPressed: () =\u003e context.push(
                                         '/events/${widget.eventId}/guests/add',
                                         extra: guest,
                                       ),
@@ -260,18 +296,18 @@ class _GuestListPageState extends State<GuestListPage> {
                                           color: AppColors.error,
                                           size: 20),
                                       onPressed: () async {
-                                        final confirm = await showDialog<bool>(
+                                        final confirm = await showDialog\u003cbool\u003e(
                                           context: context,
-                                          builder: (ctx) => AlertDialog(
+                                          builder: (ctx) =\u003e AlertDialog(
                                             title: Text(AppLocalizations.of(context)!.deleteGuest),
                                             content: Text(AppLocalizations.of(context)!.deleteGuestConfirm(guest.name)),
                                             actions: [
                                               TextButton(
-                                                onPressed: () => Navigator.of(ctx).pop(false),
+                                                onPressed: () =\u003e Navigator.of(ctx).pop(false),
                                                 child: Text(AppLocalizations.of(context)!.cancel),
                                               ),
                                               ElevatedButton(
-                                                onPressed: () => Navigator.of(ctx).pop(true),
+                                                onPressed: () =\u003e Navigator.of(ctx).pop(true),
                                                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
                                                 child: Text(AppLocalizations.of(context)!.delete),
                                               ),
@@ -279,7 +315,7 @@ class _GuestListPageState extends State<GuestListPage> {
                                           ),
                                         );
                                         if (confirm == true) {
-                                          context.read<GuestsBloc>().add(
+                                          context.read\u003cGuestsBloc\u003e().add(
                                             DeleteGuest(
                                               guestId: guest.id,
                                               eventId: widget.eventId,
@@ -294,7 +330,7 @@ class _GuestListPageState extends State<GuestListPage> {
                                         icon: const Icon(Icons.send,
                                             color: AppColors.secondaryTeal,
                                             size: 20),
-                                        onPressed: () =>
+                                        onPressed: () =\u003e
                                             _sendInvitation(guest, state.event),
                                         tooltip: AppLocalizations.of(context)!
                                             .sendInvitation,
@@ -309,13 +345,14 @@ class _GuestListPageState extends State<GuestListPage> {
                       ),
                     );
                   }
-                  if (state is GuestsError) {
+                  if (state is GuestsError \u0026\u0026 state.message.contains('obtener')) {
                     return Center(child: Text(state.message));
                   }
                   return const SizedBox();
                 },
               ),
             ),
+
           ],
         ),
       floatingActionButton: FloatingActionButton(
@@ -421,8 +458,6 @@ class _GuestListPageState extends State<GuestListPage> {
     // 1. Notify Backend / Edge Function
     context.read<GuestsBloc>().add(SendInvitation(guest: guest, channel: channel));
 
-    final baseUrl = dotenv.env['NEXT_PUBLIC_APP_URL'] ?? 'https://guestly.app';
-    final invitationLink = '$baseUrl/invitation/${guest.qrCodeToken}';
     final eventName = event?.title ?? AppLocalizations.of(context)!.eventName;
     final eventType = event?.type ?? 'other';
     
@@ -431,17 +466,18 @@ class _GuestListPageState extends State<GuestListPage> {
 
     switch (eventType) {
       case 'boda':
-        message = l10n.invitationWedding(guest.name, eventName, invitationLink);
+        message = l10n.invitationWedding(guest.name, eventName);
         break;
       case 'cumpleanos':
-        message = l10n.invitationBirthday(guest.name, eventName, invitationLink);
+        message = l10n.invitationBirthday(guest.name, eventName);
         break;
       case 'corporativo':
-        message = l10n.invitationCorporate(guest.name, eventName, invitationLink);
+        message = l10n.invitationCorporate(guest.name, eventName);
         break;
       default:
-        message = l10n.invitationMessage(guest.name, eventName, invitationLink);
+        message = l10n.invitationMessage(guest.name, eventName);
     }
+
 
     final file = await _generateQRFile(guest);
 
@@ -466,12 +502,7 @@ class _GuestListPageState extends State<GuestListPage> {
         }
       }
     } else if (channel == 'email') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Enviando invitación por Email a ${guest.email}...'),
-          backgroundColor: AppColors.primaryNavy,
-        ),
-      );
+      // Feedback is now handled by BlocConsumer
     } else {
       // Default fallback (Telegram or others)
       if (file != null) {

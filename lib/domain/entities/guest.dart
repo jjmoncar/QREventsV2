@@ -5,8 +5,6 @@ class GuestEntity extends Equatable {
   final String eventId;
   final String name;
   final String? email;
-  final String? whatsapp;
-  final String? telegram;
   final String? phone;
   final int totalGuests;
   final int guestsCheckedIn;
@@ -24,8 +22,6 @@ class GuestEntity extends Equatable {
     required this.eventId,
     required this.name,
     this.email,
-    this.whatsapp,
-    this.telegram,
     this.phone,
     this.totalGuests = 1,
     this.guestsCheckedIn = 0,
@@ -46,10 +42,9 @@ class GuestEntity extends Equatable {
   bool get isIndividual => totalGuests == 1;
   bool get isGroup => totalGuests > 1;
 
-  bool get hasWhatsApp => whatsapp != null && whatsapp!.isNotEmpty;
-  bool get hasTelegram => telegram != null && telegram!.isNotEmpty;
   bool get hasEmail => email != null && email!.isNotEmpty;
-  bool get hasContactMethod => hasWhatsApp || hasTelegram || hasEmail;
+  bool get hasPhone => phone != null && phone!.isNotEmpty;
+  bool get hasContactMethod => hasPhone || hasEmail;
 
   String get initials {
     final parts = name.trim().split(' ');
@@ -65,8 +60,6 @@ class GuestEntity extends Equatable {
         eventId,
         name,
         email,
-        whatsapp,
-        telegram,
         phone,
         totalGuests,
         guestsCheckedIn,

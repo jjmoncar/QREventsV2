@@ -1,6 +1,16 @@
 import 'package:equatable/equatable.dart';
 
-enum QrValidationType { full, partial, invalid, used, exceeded, cancelled }
+enum QrValidationType { 
+  full, 
+  partial, 
+  invalid, 
+  used, 
+  exceeded, 
+  cancelled, 
+  expired, 
+  early_date, 
+  early_time 
+}
 
 class QrValidationResult extends Equatable {
   final String status; // 'success' or 'error'
@@ -51,6 +61,12 @@ class QrValidationResult extends Equatable {
         return QrValidationType.exceeded;
       case 'cancelled':
         return QrValidationType.cancelled;
+      case 'expired':
+        return QrValidationType.expired;
+      case 'early_date':
+        return QrValidationType.early_date;
+      case 'early_time':
+        return QrValidationType.early_time;
       default:
         return QrValidationType.invalid;
     }

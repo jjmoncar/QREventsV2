@@ -6,8 +6,6 @@ class GuestModel extends GuestEntity {
     required super.eventId,
     required super.name,
     super.email,
-    super.whatsapp,
-    super.telegram,
     super.phone,
     super.totalGuests,
     super.guestsCheckedIn,
@@ -27,8 +25,6 @@ class GuestModel extends GuestEntity {
       eventId: json['event_id'] as String,
       name: json['full_name'] as String,
       email: json['email'] as String?,
-      whatsapp: json['whatsapp'] as String?,
-      telegram: json['telegram'] as String?,
       phone: json['phone'] as String?,
       totalGuests: json['total_guests'] as int? ?? 1,
       guestsCheckedIn: json['guests_checked_in'] as int? ?? 0,
@@ -54,14 +50,13 @@ class GuestModel extends GuestEntity {
       'event_id': eventId,
       'full_name': name,
       'email': email,
-      'whatsapp': whatsapp,
-      'telegram': telegram,
       'phone': phone,
       'total_guests': totalGuests,
       'invitation_channel': invitationChannel,
       'notes': notes,
     };
   }
+
 
   Map<String, dynamic> toLocalJson() {
     return {

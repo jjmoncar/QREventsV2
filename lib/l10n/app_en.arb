@@ -149,12 +149,11 @@
   "privacyPolicy": "Privacy Policy",
   "registrationSuccessMessage": "Registration successful. Please check your email to verify your account.",
   "events": "Events",
-  "invitationMessage": "Hi {guestName}! You are invited to {eventName}. Your QR invitation is: {link}",
+  "invitationMessage": "Hi {guestName}! You are invited to {eventName}. Your QR invitation is attached.",
   "@invitationMessage": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
   "editEvent": "Edit Event",
@@ -169,28 +168,25 @@
       "title": { "type": "String" }
     }
   },
-  "invitationWedding": "Hi {guestName}! We are happy to invite you to our Wedding: {eventName}. Get your QR pass here: {link}",
+  "invitationWedding": "Hi {guestName}! We are happy to invite you to our Wedding: {eventName}. Please present the attached QR pass upon entry.",
   "@invitationWedding": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
-  "invitationBirthday": "Hi {guestName}! I'm waiting for you to celebrate my birthday: {eventName}. Your QR pass is: {link}",
+  "invitationBirthday": "Hi {guestName}! I'm waiting for you to celebrate my birthday: {eventName}. Your QR pass is attached.",
   "@invitationBirthday": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
-  "invitationCorporate": "Dear {guestName}, you are formally invited to our corporate event: {eventName}. Your QR access pass: {link}",
+  "invitationCorporate": "Dear {guestName}, you are formally invited to our corporate event: {eventName}. Your QR access pass is attached.",
   "@invitationCorporate": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
   "retry": "Retry",

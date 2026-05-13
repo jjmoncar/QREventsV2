@@ -56,9 +56,13 @@ class GuestsBloc extends Bloc<GuestsEvent, GuestsState> {
     final result = await _guestRepository.updateGuest(event.guest);
     result.fold(
       (error) => emit(GuestsError(error)),
-      (_) => add(LoadGuests(event.guest.eventId)),
+      (updatedGuest) {
+        emit(GuestUpdated(updatedGuest));
+        add(LoadGuests(event.guest.eventId));
+      },
     );
   }
+
 
   Future<void> _onDeleteGuest(
       DeleteGuest event, Emitter<GuestsState> emit) async {
@@ -94,10 +98,22 @@ class GuestsBloc extends Bloc<GuestsEvent, GuestsState> {
 
   Future<void> _onSendInvitation(
       SendInvitation event, Emitter<GuestsState> emit) async {
+    final currentState = state;
+    emit(InvitationSending());
+    
     final result = await _guestRepository.sendInvitation(event.guest.id, event.channel);
+    
     result.fold(
-      (error) => emit(GuestsError(error)),
-      (_) => add(LoadGuests(event.guest.eventId)),
+      (error) {
+        emit(GuestsError(error));
+        // Restore previous state if possible so the UI doesn't stay in error/loading
+        if (currentState is GuestsLoaded) emit(currentState);
+      },
+      (_) {
+        emit(const InvitationSent("Invitación enviada exitosamente"));
+        add(LoadGuests(event.guest.eventId));
+      },
     );
   }
+
 }

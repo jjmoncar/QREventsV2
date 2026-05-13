@@ -23,8 +23,6 @@ class _AddGuestPageState extends State<AddGuestPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
-  late final TextEditingController _whatsappController;
-  late final TextEditingController _telegramController;
   late final TextEditingController _phoneController;
   late final TextEditingController _notesController;
   late int _totalGuests;
@@ -34,10 +32,6 @@ class _AddGuestPageState extends State<AddGuestPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.guest?.name ?? '');
     _emailController = TextEditingController(text: widget.guest?.email ?? '');
-    _whatsappController =
-        TextEditingController(text: widget.guest?.whatsapp ?? '');
-    _telegramController =
-        TextEditingController(text: widget.guest?.telegram ?? '');
     _phoneController = TextEditingController(text: widget.guest?.phone ?? '');
     _notesController = TextEditingController(text: widget.guest?.notes ?? '');
     _totalGuests = widget.guest?.totalGuests ?? 1;
@@ -47,8 +41,6 @@ class _AddGuestPageState extends State<AddGuestPage> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _whatsappController.dispose();
-    _telegramController.dispose();
     _phoneController.dispose();
     _notesController.dispose();
     super.dispose();
@@ -66,7 +58,16 @@ class _AddGuestPageState extends State<AddGuestPage> {
             ),
           );
           context.pop();
+        } else if (state is GuestUpdated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invitado editado correctamente'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.pop();
         } else if (state is GuestsError) {
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
@@ -178,23 +179,6 @@ class _AddGuestPageState extends State<AddGuestPage> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _whatsappController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.whatsapp,
-                    prefixIcon: const Icon(Icons.chat_outlined),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _telegramController,
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.telegram,
-                    prefixIcon: const Icon(Icons.send_outlined),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
@@ -239,12 +223,6 @@ class _AddGuestPageState extends State<AddGuestPage> {
         name: _nameController.text.trim(),
         email: _emailController.text.trim().isNotEmpty
             ? _emailController.text.trim()
-            : null,
-        whatsapp: _whatsappController.text.trim().isNotEmpty
-            ? _whatsappController.text.trim()
-            : null,
-        telegram: _telegramController.text.trim().isNotEmpty
-            ? _telegramController.text.trim()
             : null,
         phone: _phoneController.text.trim().isNotEmpty
             ? _phoneController.text.trim()

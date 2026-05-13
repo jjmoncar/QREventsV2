@@ -40,9 +40,27 @@ class GuestAdded extends GuestsState {
   List<Object?> get props => [guest];
 }
 
+class GuestUpdated extends GuestsState {
+  final GuestEntity guest;
+  const GuestUpdated(this.guest);
+  @override
+  List<Object?> get props => [guest];
+}
+
+
 class GuestsError extends GuestsState {
   final String message;
   const GuestsError(this.message);
   @override
   List<Object?> get props => [message];
 }
+
+class InvitationSending extends GuestsState {}
+
+class InvitationSent extends GuestsState {
+  final String message;
+  const InvitationSent(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+

@@ -71,7 +71,12 @@ class GuestRemoteDatasource {
   Future<void> sendInvitation(String guestId, String channel) async {
     if (channel == 'email') {
       // Call Edge Function for dynamic art email
-      await _client.functions.invoke('send-invitation', body: {'guest_id': guestId});
+      final response = await _client.functions.invoke('send-invitation', body: {'guest_id': guestId});
+      
+      if (response.status != 200) {
+        final errorMsg = response.data is Map ? response.data['error'] : 'Error en el servidor de correo';
+        throw Exception(errorMsg ?? 'Error al enviar invitación por email');
+      }
     } else {
       // For WhatsApp/Telegram, we just update the channel in DB
       // The actual sharing is handled by the UI via share_plus

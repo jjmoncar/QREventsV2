@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
+import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,8 +14,14 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  console.log("[Antigravity] Processing invitation request...");
+
   try {
     const { guest_id } = await req.json();
+
+    if (!guest_id) {
+      throw new Error("guest_id is required");
+    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -27,51 +35,118 @@ serve(async (req) => {
       .eq("id", guest_id)
       .single();
 
-    if (guestError || !guest) throw new Error("Guest not found");
+    if (guestError || !guest) {
+      console.error(`[Antigravity] Guest not found: ${guest_id}`);
+      throw new Error("Guest not found");
+    }
+
+    if (!guest.email) {
+      console.error(`[Antigravity] Guest ${guest.full_name} has no email address`);
+      throw new Error("Guest email is missing");
+    }
 
     const event = guest.events;
     const eventType = event.type || "other";
-
-    // Dynamic Art selection based on storage
-    const storageUrl = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/backgrounds`;
-    
-    const bgMap: Record<string, string> = {
-      'boda': 'bg_wedding.png',
-      'religioso': 'bg_religious.png',
-      'cumpleanos': 'bg_birthday.png',
-      'corporativo': 'bg_corporate.png',
-    };
-
-    const bgFile = bgMap[eventType] || 'bg_corporate.png';
-    const bgUrl = `${storageUrl}/${bgFile}`;
 
     // Invitation link
     const baseUrl = Deno.env.get("NEXT_PUBLIC_APP_URL") || "https://guestly.app";
     const invitationLink = `${baseUrl}/invitation/${guest.qr_code_token}`;
 
-    // Here we simulate sending an email or use Resend if API key is provided
-    // For this implementation, we will log the success and update the guest status
-    
+    console.log(`[Antigravity] Preparing email for ${guest.full_name} (${guest.email})`);
+
+    // Generate QR Code
+    const qrImage = await qrcode(invitationLink);
+    // qrImage is a data URL: "data:image/png;base64,..."
+    const qrBase64 = qrImage.split(",")[1];
+
+    // SMTP Configuration
+    const smtpHost = Deno.env.get("SMTP_HOST");
+    const smtpPort = parseInt(Deno.env.get("SMTP_PORT") || "587");
+    const smtpUser = Deno.env.get("SMTP_USER");
+    const smtpPass = Deno.env.get("SMTP_PASS");
+    const smtpFrom = Deno.env.get("SMTP_FROM") || smtpUser;
+
+    if (!smtpHost || !smtpUser || !smtpPass) {
+      console.error("[Antigravity] SMTP configuration missing");
+      throw new Error("Servidor de correo no configurado (SMTP missing)");
+    }
+
+    const client = new SmtpClient();
+
+    try {
+      console.log(`[Antigravity] Connecting to SMTP host: ${smtpHost}:${smtpPort}`);
+      await client.connectTLS({
+        hostname: smtpHost,
+        port: smtpPort,
+        username: smtpUser,
+        password: smtpPass,
+      });
+
+      const eventName = event.title || "Evento Especial";
+      
+      console.log(`[Antigravity] Sending email...`);
+      await client.send({
+        from: smtpFrom!,
+        to: guest.email,
+        subject: `Tu invitación para ${eventName}`,
+        content: `Hola ${guest.full_name},\n\nHas sido invitado a ${eventName}.\n\nTu link de invitación: ${invitationLink}\n\nAdjuntamos tu código QR para el ingreso.`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #1a237e;">¡Hola ${guest.full_name}!</h2>
+            <p>Te han invitado a <strong>${eventName}</strong>.</p>
+            <p>Presenta el siguiente código QR en la entrada:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <img src="cid:qrcode" alt="Código QR de Invitación" style="width: 200px; height: 200px;"/>
+            </div>
+            <p>También puedes acceder a tu invitación digital aquí:</p>
+            <div style="text-align: center; margin: 20px 0;">
+              <a href="${invitationLink}" style="background-color: #1a237e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Invitación</a>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;"/>
+            <p style="font-size: 12px; color: #777; text-align: center;">Generado por Guestly Access System</p>
+          </div>
+        `,
+        attachments: [
+          {
+            filename: "invitacion_qr.png",
+            content: qrBase64,
+            encoding: "base64",
+            contentId: "qrcode", // For CID embedding
+          },
+        ],
+      });
+
+      await client.close();
+      console.log(`[Antigravity] Email sent successfully to ${guest.email}`);
+
+    } catch (smtpError) {
+      console.error(`[Antigravity] SMTP Error: ${smtpError.message}`);
+      throw new Error(`Fallo en el protocolo de transporte: ${smtpError.message}`);
+    }
+
+    // Update guest status only on real success
     await supabase.from("guests").update({
       invitation_channel: 'email',
       updated_at: new Date().toISOString()
     }).eq("id", guest_id);
 
-    console.log(`[Antigravity] Generated invitation for ${guest.full_name} using background ${bgUrl}`);
-
     return new Response(JSON.stringify({ 
       success: true, 
-      message: "Invitación procesada con arte dinámico",
-      art_url: bgUrl,
-      invitation_link: invitationLink
+      message: "Invitación enviada exitosamente por correo"
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
+
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error(`[Antigravity] Function error: ${error.message}`);
+    return new Response(JSON.stringify({ 
+      success: false,
+      error: error.message 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });
   }
 });
+

@@ -29,14 +29,15 @@ class _EventsListPageState extends State<EventsListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.myEvents),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline),
-            onPressed: () => context.push('/events/create'),
-          ),
-        ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/events/create'),
+        backgroundColor: AppColors.success,
+        child: const Icon(Icons.add, color: Colors.white, size: 30),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: BlocBuilder<EventsBloc, EventsState>(
+
         builder: (context, state) {
           if (state is EventsLoading) {
             return const Center(child: CircularProgressIndicator());

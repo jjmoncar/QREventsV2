@@ -149,12 +149,11 @@
   "privacyPolicy": "Política de privacidad",
   "registrationSuccessMessage": "Registro exitoso. Revisa tu correo para verificar tu cuenta.",
   "events": "Eventos",
-  "invitationMessage": "¡Hola {guestName}! Estás invitado a {eventName}. Tu pase QR es: {link}",
+  "invitationMessage": "¡Hola {guestName}! Estás invitado a {eventName}. Adjuntamos tu pase QR para el ingreso.",
   "@invitationMessage": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
   "editEvent": "Editar Evento",
@@ -169,30 +168,25 @@
       "title": { "type": "String" }
     }
   },
-  "invitationWedding": "¡Hola {guestName}! Estamos felices de invitarte a nuestra Boda: {eventName}. Obtén tu pase QR aquí: {link}",
+  "invitationWedding": "¡Hola {guestName}! Estamos felices de invitarte a nuestra Boda: {eventName}. Presenta el código QR adjunto al ingresar.",
   "@invitationWedding": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
-  "invitationBirthday": "¡Hola {guestName}! Te espero para celebrar mi cumpleaños: {eventName}. Tu pase QR es: {link}",
+  "invitationBirthday": "¡Hola {guestName}! Te espero para celebrar mi cumpleaños: {eventName}. Tu pase QR está adjunto.",
   "@invitationBirthday": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
-  "invitationCorporate": "Estimado(a) {guestName}, le invitamos formalmente al evento corporativo: {eventName}. Su pase de acceso QR: {link}",
-  "retry": "Reintentar",
-  "loginRequired": "Debes iniciar sesión para ver tu perfil",
+  "invitationCorporate": "Estimado(a) {guestName}, le invitamos formalmente al evento corporativo: {eventName}. Se adjunta su pase de acceso QR.",
   "@invitationCorporate": {
     "placeholders": {
       "guestName": { "type": "String" },
-      "eventName": { "type": "String" },
-      "link": { "type": "String" }
+      "eventName": { "type": "String" }
     }
   },
   "retry": "Reintentar",
