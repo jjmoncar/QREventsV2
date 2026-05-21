@@ -192,12 +192,39 @@ class _EventDetailPageState extends State<EventDetailPage> {
                       Expanded(
                         flex: 2,
                         child: ElevatedButton.icon(
-                          onPressed: () =>
-                              context.push('/events/${event.id}/scanner'),
+                          onPressed: () {
+                            if (event.isScanningAllowed) {
+                              context.push('/events/${event.id}/scanner');
+                            } else {
+                              String message = '';
+                              if (event.isPreviousDay) {
+                                final dateStr = "${event.dateTime.day}/${event.dateTime.month}/${event.dateTime.year}";
+                                message = AppLocalizations.of(context)!.scanPreviousDay(dateStr);
+                              } else if (event.isTooEarly) {
+                                message = AppLocalizations.of(context)!.scanTooEarly;
+                              } else if (event.isTooLate) {
+                                message = AppLocalizations.of(context)!.scanTooLate;
+                              }
+                              if (message.isNotEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(message),
+                                    behavior: SnackBarBehavior.floating,
+                                    backgroundColor: AppColors.primaryNavy,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
                           icon: const Icon(Icons.qr_code_scanner),
                           label: Text(AppLocalizations.of(context)!.scan),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryNavy,
+                            backgroundColor: event.isScanningAllowed ? AppColors.primaryNavy : Colors.grey.shade400,
+                            foregroundColor: event.isScanningAllowed ? Colors.white : Colors.white.withValues(alpha: 0.8),
+                            elevation: event.isScanningAllowed ? 3 : 0,
                           ),
                         ),
                       ),

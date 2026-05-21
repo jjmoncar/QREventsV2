@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fl_chart/fl_chart.dart';
+
 
 import '../../../core/constants/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -205,14 +205,42 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildScanButton() {
     return BlocBuilder<EventsBloc, EventsState>(
       builder: (context, state) {
-        final eventId = state is EventsLoaded ? state.nextEvent?.id : null;
+        final event = state is EventsLoaded ? state.nextEvent : null;
+        if (event == null) return const SizedBox.shrink();
+
+        final isAllowed = event.isScanningAllowed;
+
         return SizedBox(
           width: double.infinity,
           height: 56,
           child: ElevatedButton.icon(
-            onPressed: eventId != null
-                ? () => context.push('/events/$eventId/scanner')
-                : null,
+            onPressed: () {
+              if (isAllowed) {
+                context.push('/events/${event.id}/scanner');
+              } else {
+                String message = '';
+                if (event.isPreviousDay) {
+                  final dateStr = "${event.dateTime.day}/${event.dateTime.month}/${event.dateTime.year}";
+                  message = AppLocalizations.of(context)!.scanPreviousDay(dateStr);
+                } else if (event.isTooEarly) {
+                  message = AppLocalizations.of(context)!.scanTooEarly;
+                } else if (event.isTooLate) {
+                  message = AppLocalizations.of(context)!.scanTooLate;
+                }
+                if (message.isNotEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: AppColors.primaryNavy,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
             icon: const Icon(Icons.qr_code_scanner, size: 24),
             label: Text(
               AppLocalizations.of(context)!.scanGuests,
@@ -223,13 +251,13 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondaryTeal,
-              foregroundColor: Colors.white,
+              backgroundColor: isAllowed ? AppColors.secondaryTeal : Colors.grey.shade400,
+              foregroundColor: isAllowed ? Colors.white : Colors.white.withValues(alpha: 0.8),
               shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.circular(AppTheme.borderRadiusSmall),
               ),
-              elevation: 3,
+              elevation: isAllowed ? 3 : 0,
             ),
           ),
         );
@@ -307,8 +335,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              _statusBadge(g.status),
-                              if (g.isGroup) ...[
+                              _statusBadge(g),
                                 const SizedBox(width: 8),
                                 Text(
                                   '(${g.guestsCheckedIn}/${g.totalGuests})',
@@ -317,7 +344,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                     color: AppColors.textSecondaryLight,
                                   ),
                                 ),
-                              ],
                             ],
                           ),
                         ),
@@ -434,7 +460,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                       ),
                       const SizedBox(height: 4),
-                      _statusBadge(guest.status),
+                        _statusBadge(guest),
                     ],
                   ),
                 ),
@@ -515,33 +541,50 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _statusBadge(String status) {
+  Widget _statusBadge(GuestEntity guest) {
     if (!mounted) return const SizedBox();
-    final isCheckedIn = status == 'checked_in';
+    final hasCheckedIn = guest.guestsCheckedIn > 0;
+    final isInvited = guest.status == 'invited';
+    
+    Color color;
+    IconData icon;
+    String text;
+    
+    if (hasCheckedIn) {
+      color = AppColors.success;
+      icon = Icons.check_circle;
+      text = AppLocalizations.of(context)!.attended;
+    } else if (isInvited) {
+      color = AppColors.info;
+      icon = Icons.send;
+      text = AppLocalizations.of(context)!.invited;
+    } else {
+      color = AppColors.warning;
+      icon = Icons.pending;
+      text = AppLocalizations.of(context)!.pending;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: (isCheckedIn ? AppColors.success : AppColors.warning)
-            .withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isCheckedIn ? Icons.check_circle : Icons.pending,
+            icon,
             size: 12,
-            color: isCheckedIn ? AppColors.success : AppColors.warning,
+            color: color,
           ),
           const SizedBox(width: 4),
           Text(
-            isCheckedIn
-                ? AppLocalizations.of(context)!.confirmed
-                : AppLocalizations.of(context)!.pending,
+            text,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: isCheckedIn ? AppColors.success : AppColors.warning,
+              color: color,
             ),
           ),
         ],

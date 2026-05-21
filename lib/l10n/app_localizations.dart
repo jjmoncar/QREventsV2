@@ -181,6 +181,18 @@ abstract class AppLocalizations {
   /// **'Pending'**
   String get pending;
 
+  /// No description provided for @invited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get invited;
+
+  /// No description provided for @attended.
+  ///
+  /// In en, this message translates to:
+  /// **'Attended'**
+  String get attended;
+
   /// No description provided for @sendInvitation.
   ///
   /// In en, this message translates to:
@@ -450,6 +462,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pending'**
   String get status_pending;
+
+  /// No description provided for @status_invited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get status_invited;
+
+  /// No description provided for @status_checked_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Attended'**
+  String get status_checked_in;
 
   /// No description provided for @status_completed.
   ///
@@ -894,6 +918,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email already registered. Please log in.'**
   String get errorEmailAlreadyRegistered;
+
+  /// No description provided for @scanTooEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Access will be enabled one hour before the start'**
+  String get scanTooEarly;
+
+  /// No description provided for @scanTooLate.
+  ///
+  /// In en, this message translates to:
+  /// **'The event has ended and no longer admits more entries'**
+  String get scanTooLate;
+
+  /// No description provided for @sendInvitationEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Invitation via Email'**
+  String get sendInvitationEmail;
+
+  /// No description provided for @sendInvitationImageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send QR code as an image'**
+  String get sendInvitationImageSubtitle;
+
+  /// No description provided for @scanPreviousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'The event has not started yet. Scheduled date: {date}'**
+  String scanPreviousDay(String date);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

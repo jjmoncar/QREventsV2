@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
-import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
+import nodemailer from "https://esm.sh/nodemailer@6.9.1";
 import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
 
 const corsHeaders = {
@@ -46,8 +46,7 @@ serve(async (req) => {
     }
 
     const event = guest.events;
-    const eventType = event.type || "other";
-
+    
     // Invitation link
     const baseUrl = Deno.env.get("NEXT_PUBLIC_APP_URL") || "https://guestly.app";
     const invitationLink = `${baseUrl}/invitation/${guest.qr_code_token}`;
@@ -56,7 +55,6 @@ serve(async (req) => {
 
     // Generate QR Code
     const qrImage = await qrcode(invitationLink);
-    // qrImage is a data URL: "data:image/png;base64,..."
     const qrBase64 = qrImage.split(",")[1];
 
     // SMTP Configuration
@@ -71,25 +69,30 @@ serve(async (req) => {
       throw new Error("Servidor de correo no configurado (SMTP missing)");
     }
 
-    const client = new SmtpClient();
+    // Using Nodemailer for better STARTTLS support
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465, // true for 465, false for other ports (will use STARTTLS)
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+      tls: {
+        // Do not fail on invalid certs
+        rejectUnauthorized: false
+      }
+    });
+
+    const eventName = event.title || "Evento Especial";
+    console.log(`[Antigravity] Sending email via Nodemailer from: ${smtpFrom} to: ${guest.email}`);
 
     try {
-      console.log(`[Antigravity] Connecting to SMTP host: ${smtpHost}:${smtpPort}`);
-      await client.connectTLS({
-        hostname: smtpHost,
-        port: smtpPort,
-        username: smtpUser,
-        password: smtpPass,
-      });
-
-      const eventName = event.title || "Evento Especial";
-      
-      console.log(`[Antigravity] Sending email...`);
-      await client.send({
-        from: smtpFrom!,
+      await transporter.sendMail({
+        from: smtpFrom,
         to: guest.email,
         subject: `Tu invitación para ${eventName}`,
-        content: `Hola ${guest.full_name},\n\nHas sido invitado a ${eventName}.\n\nTu link de invitación: ${invitationLink}\n\nAdjuntamos tu código QR para el ingreso.`,
+        text: `Hola ${guest.full_name},\n\nHas sido invitado a ${eventName}.\n\nTu link de invitación: ${invitationLink}\n\nAdjuntamos tu código QR para el ingreso.`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #1a237e;">¡Hola ${guest.full_name}!</h2>
@@ -111,12 +114,11 @@ serve(async (req) => {
             filename: "invitacion_qr.png",
             content: qrBase64,
             encoding: "base64",
-            contentId: "qrcode", // For CID embedding
+            cid: "qrcode", // For CID embedding
           },
         ],
       });
 
-      await client.close();
       console.log(`[Antigravity] Email sent successfully to ${guest.email}`);
 
     } catch (smtpError) {

@@ -19,6 +19,8 @@
   "search": "Buscar",
   "confirmed": "Confirmado",
   "pending": "Pendiente",
+  "invited": "Invitado",
+  "attended": "Asistió",
   "sendInvitation": "Enviar Invitación",
   "viewDetails": "Ver Detalles",
   "myEvents": "Mis Eventos",
@@ -64,6 +66,8 @@
   "active": "Activo",
   "inactive": "Inactivo",
   "status_pending": "Pendiente",
+  "status_invited": "Invitado",
+  "status_checked_in": "Asistió",
   "status_completed": "Realizado",
   "status_cancelled": "Cancelado",
   "invitationCancelled": "Invitación Cancelada",
@@ -191,5 +195,15 @@
   },
   "retry": "Reintentar",
   "loginRequired": "Debes iniciar sesión para ver tu perfil",
-  "errorEmailAlreadyRegistered": "El correo ya está registrado. Por favor, inicia sesión."
+  "errorEmailAlreadyRegistered": "El correo ya está registrado. Por favor, inicia sesión.",
+  "scanTooEarly": "El acceso se habilitará una hora antes del inicio",
+  "scanTooLate": "El evento ha finalizado y ya no admite más ingresos",
+  "sendInvitationEmail": "Enviar Invitación por Email",
+  "sendInvitationImageSubtitle": "Enviar el código QR como imagen",
+  "scanPreviousDay": "El evento aún no ha comenzado. Fecha programada: {date}",
+  "@scanPreviousDay": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  }
 }

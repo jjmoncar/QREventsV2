@@ -53,6 +53,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pending => 'Pendiente';
 
   @override
+  String get invited => 'Invitado';
+
+  @override
+  String get attended => 'Asistió';
+
+  @override
   String get sendInvitation => 'Enviar Invitación';
 
   @override
@@ -186,6 +192,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get status_pending => 'Pendiente';
+
+  @override
+  String get status_invited => 'Invitado';
+
+  @override
+  String get status_checked_in => 'Asistió';
 
   @override
   String get status_completed => 'Realizado';
@@ -428,4 +440,21 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorEmailAlreadyRegistered => 'El correo ya está registrado. Por favor, inicia sesión.';
+
+  @override
+  String get scanTooEarly => 'El acceso se habilitará una hora antes del inicio';
+
+  @override
+  String get scanTooLate => 'El evento ha finalizado y ya no admite más ingresos';
+
+  @override
+  String get sendInvitationEmail => 'Enviar Invitación por Email';
+
+  @override
+  String get sendInvitationImageSubtitle => 'Enviar el código QR como imagen';
+
+  @override
+  String scanPreviousDay(String date) {
+    return 'El evento aún no ha comenzado. Fecha programada: $date';
+  }
 }

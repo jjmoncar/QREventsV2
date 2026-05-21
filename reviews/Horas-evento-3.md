@@ -1,0 +1,9 @@
+Documento de Corrección Técnica: Validación de Ventana Temporal (V2.4.1)Proyecto: GuestlyPrioridad: Crítica / Corrección de Error de Lógica1. Descripción del FalloEl botón de escaneo se está habilitando prematuramente. Según la regla establecida, el botón debe activarse únicamente cuando falten 60 minutos o menos para la hora de inicio del evento. Actualmente, a las 10:59 AM para un evento a las 12:10 PM (faltando 71 minutos), el botón ya aparece activo.2. Especificación de la Lógica CorrectaLa aplicación debe realizar un cálculo matemático estricto de la diferencia de tiempo entre la hora actual del dispositivo y la hora programada del evento:Regla de Apertura (T-60): El botón debe pasar de deshabilitado a habilitado si y solo si:$$(HoraEvento - HoraActual) \le 60 \text{ minutos}$$Regla de Cierre (T+360): El botón debe volver a deshabilitado si:$$(HoraActual - HoraEvento) > 360 \text{ minutos (6 horas)}$$3. Ajuste en la Implementación (Flutter/Dart)Se debe asegurar que el cálculo no redondee hacia arriba. El código debe verificar la diferencia total en minutos:Dart// Ejemplo de lógica a aplicar
+final ahora = DateTime.now();
+final horaEvento = evento.fechaHora;
+final diferenciaEnMinutos = horaEvento.difference(ahora).inMinutes;
+
+// El botón solo se habilita si la diferencia es de 60 minutos o menos
+// Y no han pasado más de 360 minutos desde el inicio.
+bool puedeEscanear = diferenciaEnMinutos <= 60 && diferenciaEnMinutos >= -360;
+4. Verificación de ÉxitoPara el caso reportado (Evento 12:10 PM):11:09 AM: El botón debe estar Deshabilitado (Faltan 61 min).11:10 AM: El botón debe estar Habilitado (Faltan 60 min).06:10 PM: El botón debe estar Habilitado (Último minuto de acceso).06:11 PM: El botón debe estar Deshabilitado (Evento cerrado).

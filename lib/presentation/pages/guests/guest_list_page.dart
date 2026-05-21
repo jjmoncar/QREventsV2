@@ -260,18 +260,16 @@ class _GuestListPageState extends State<GuestListPage> {
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          _statusBadge(guest.status),
-                                          if (guest.isGroup) ...[
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              '${guest.guestsCheckedIn}/${guest.totalGuests} ${AppLocalizations.of(context)!.people}',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: AppColors
-                                                    .textSecondaryLight,
-                                              ),
+                                          _statusBadge(guest),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            '${guest.guestsCheckedIn}/${guest.totalGuests} ${AppLocalizations.of(context)!.people}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors
+                                                  .textSecondaryLight,
                                             ),
-                                          ],
+                                          ),
                                         ],
                                       ),
                                     ],
@@ -325,16 +323,15 @@ class _GuestListPageState extends State<GuestListPage> {
                                       },
                                       tooltip: AppLocalizations.of(context)!.delete,
                                     ),
-                                    if (guest.hasContactMethod)
-                                      IconButton(
-                                        icon: const Icon(Icons.send,
-                                            color: AppColors.secondaryTeal,
-                                            size: 20),
-                                        onPressed: () =>
-                                            _sendInvitation(guest, state.event),
-                                        tooltip: AppLocalizations.of(context)!
-                                            .sendInvitation,
-                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.send,
+                                          color: AppColors.secondaryTeal,
+                                          size: 20),
+                                      onPressed: () =>
+                                          _sendInvitation(guest, state.event),
+                                      tooltip: AppLocalizations.of(context)!
+                                          .sendInvitation,
+                                    ),
                                   ],
                                 ),
                                 ],
@@ -386,10 +383,10 @@ class _GuestListPageState extends State<GuestListPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            if (guest.hasEmail)
+            if (guest.hasEmail) ...[
               _invitationChannelTile(
                 icon: Icons.email_outlined,
-                title: 'Email (Arte Dinámico)',
+                title: AppLocalizations.of(context)!.sendInvitationEmail,
                 subtitle: guest.email!,
                 color: AppColors.primaryNavy,
                 onTap: () {
@@ -397,11 +394,12 @@ class _GuestListPageState extends State<GuestListPage> {
                   _processInvitation(guest, 'email', event);
                 },
               ),
-            const Divider(height: 32),
+              const Divider(height: 32),
+            ],
             _invitationChannelTile(
               icon: Icons.qr_code,
-              title: 'Compartir Imagen QR',
-              subtitle: 'Enviar el código QR como imagen',
+              title: AppLocalizations.of(context)!.sendInvitation,
+              subtitle: AppLocalizations.of(context)!.sendInvitationImageSubtitle,
               color: AppColors.secondaryTeal,
               onTap: () {
                 Navigator.pop(context);
@@ -462,7 +460,8 @@ class _GuestListPageState extends State<GuestListPage> {
     if (channel == 'email') {
       // Feedback is now handled by BlocConsumer
     } else {
-      // Default fallback (Share QR Image)
+      // Default fallback (Share QR Image) - though this might not be reached if using _shareQRImage directly
+      final file = await _generateQRFile(guest);
       if (file != null) {
         await Share.shareXFiles([XFile(file.path)], text: message);
       } else {
@@ -505,11 +504,16 @@ class _GuestListPageState extends State<GuestListPage> {
   }
 
   Future<void> _shareQRImage(GuestEntity guest, EventEntity? event) async {
+    // Notify backend that invitation is being sent
+    context.read<GuestsBloc>().add(SendInvitation(guest: guest, channel: 'share'));
+
     final file = await _generateQRFile(guest);
     if (file != null) {
+      if (!mounted) return;
+      final eventName = event?.title ?? AppLocalizations.of(context)!.eventName;
       await Share.shareXFiles(
         [XFile(file.path)], 
-        text: 'Código QR de ${guest.name} para ${event?.title ?? 'el evento'}'
+        text: 'Código QR de ${guest.name} para $eventName'
       );
     } else {
       if (mounted) {
@@ -520,30 +524,49 @@ class _GuestListPageState extends State<GuestListPage> {
     }
   }
 
-  Widget _statusBadge(String status) {
-    final isCheckedIn = status == 'checked_in';
+  Widget _statusBadge(GuestEntity guest) {
+    final hasCheckedIn = guest.guestsCheckedIn > 0;
+    final isInvited = guest.status == 'invited';
+    
+    Color color;
+    IconData icon;
+    String text;
+    
+    if (hasCheckedIn) {
+      color = AppColors.success;
+      icon = Icons.check_circle;
+      text = AppLocalizations.of(context)!.attended;
+    } else if (isInvited) {
+      color = AppColors.info;
+      icon = Icons.send;
+      text = AppLocalizations.of(context)!.invited;
+    } else {
+      color = AppColors.warning;
+      icon = Icons.pending;
+      text = AppLocalizations.of(context)!.pending;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: (isCheckedIn ? AppColors.success : AppColors.warning)
-            .withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isCheckedIn ? Icons.check_circle : Icons.pending,
+            icon,
             size: 12,
-            color: isCheckedIn ? AppColors.success : AppColors.warning,
+            color: color,
           ),
           const SizedBox(width: 4),
           Text(
-            isCheckedIn ? AppLocalizations.of(context)!.confirmed : AppLocalizations.of(context)!.pending,
+            text,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: isCheckedIn ? AppColors.success : AppColors.warning,
+              color: color,
             ),
           ),
         ],

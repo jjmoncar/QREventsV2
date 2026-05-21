@@ -28,7 +28,7 @@ class ScannerError extends ScannerState {
 
 class GuestInfoLoaded extends ScannerState {
   final String qrToken;
-  final dynamic guest; // Use GuestEntity
+  final GuestEntity guest;
   const GuestInfoLoaded(this.qrToken, this.guest);
   @override
   List<Object?> get props => [qrToken, guest];

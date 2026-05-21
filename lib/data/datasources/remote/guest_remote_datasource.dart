@@ -77,13 +77,13 @@ class GuestRemoteDatasource {
         final errorMsg = response.data is Map ? response.data['error'] : 'Error en el servidor de correo';
         throw Exception(errorMsg ?? 'Error al enviar invitación por email');
       }
-    } else {
-      // For WhatsApp/Telegram, we just update the channel in DB
-      // The actual sharing is handled by the UI via share_plus
-      await _client.from('guests').update({
-        'invitation_channel': channel,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', guestId);
     }
+    
+    // Update status to 'invited' after successful email send or manual share
+    await _client.from('guests').update({
+      'invitation_channel': channel,
+      'status': 'invited',
+      'updated_at': DateTime.now().toIso8601String(),
+    }).eq('id', guestId);
   }
 }

@@ -56,7 +56,7 @@ class _ScannerPageState extends State<ScannerPage>
       listener: (context, state) async {
         if (state is GuestInfoLoaded) {
           if (mounted) {
-            _handleGuestInfo(state.qrToken, state.guest as GuestEntity);
+            _handleGuestInfo(state.qrToken, state.guest);
           }
         } else if (state is ScannerResult) {
           setState(() => _isProcessing = false);

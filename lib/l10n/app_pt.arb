@@ -158,6 +158,15 @@
   },
   "retry": "Tentar novamente",
   "loginRequired": "Você deve estar logado para ver seu perfil",
-  "errorEmailAlreadyRegistered": "E-mail já cadastrado. Por favor, faça o login."
+  "errorEmailAlreadyRegistered": "E-mail já cadastrado. Por favor, faça o login.",
+  "scanTooEarly": "O acesso será habilitado uma hora antes do início",
+  "scanTooLate": "O evento terminou e não admite mais entradas",
+  "sendInvitationEmail": "Enviar Convite por E-mail",
+  "sendInvitationImageSubtitle": "Enviar o código QR como imagem",
+  "scanPreviousDay": "O evento ainda não começou. Data agendada: {date}",
+  "@scanPreviousDay": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  }
 }
-
