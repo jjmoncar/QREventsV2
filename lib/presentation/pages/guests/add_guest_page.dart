@@ -92,6 +92,7 @@ class _AddGuestPageState extends State<AddGuestPage> {
                 // Name
                 TextFormField(
                   controller: _nameController,
+                  textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.guestNameHint,
                     prefixIcon: const Icon(Icons.person_outline),
@@ -190,6 +191,7 @@ class _AddGuestPageState extends State<AddGuestPage> {
                 TextFormField(
                   controller: _notesController,
                   maxLines: 2,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.notesOptional,
                     prefixIcon: const Icon(Icons.note_outlined),

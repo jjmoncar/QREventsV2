@@ -124,6 +124,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 // Title
                 TextFormField(
                   controller: _titleController,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.eventName,
                     prefixIcon: const Icon(Icons.celebration),
@@ -171,6 +172,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 // Location
                 TextFormField(
                   controller: _locationController,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.eventLocation,
                     prefixIcon: const Icon(Icons.location_on_outlined),
@@ -204,6 +206,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 TextFormField(
                   controller: _descriptionController,
                   maxLines: 3,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.eventDescription,
                     prefixIcon: const Icon(Icons.description_outlined),

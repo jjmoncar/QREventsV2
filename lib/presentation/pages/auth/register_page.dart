@@ -133,6 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             const SizedBox(height: 24),
                             TextFormField(
                               controller: _nameController,
+                              textCapitalization: TextCapitalization.words,
                               decoration: InputDecoration(
                                 hintText: AppLocalizations.of(context)!.name,
                                 prefixIcon: const Icon(Icons.person_outline),

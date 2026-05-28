@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -148,7 +149,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   _infoCard(
                       Icons.access_time,
                       AppLocalizations.of(context)!.eventTime,
-                      '${event.dateTime.hour}:${event.dateTime.minute.toString().padLeft(2, '0')}'),
+                      MediaQuery.of(context).alwaysUse24HourFormat
+                          ? DateFormat('HH:mm').format(event.dateTime)
+                          : DateFormat('h:mm a').format(event.dateTime)),
                   if (event.location != null && event.location!.isNotEmpty)
                     _infoCard(
                         Icons.location_on,
