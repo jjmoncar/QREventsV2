@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -44,9 +42,7 @@ class _GuestListPageState extends State<GuestListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.guests),
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.guests)),
       body: Column(
         children: [
           // Search Bar
@@ -56,9 +52,8 @@ class _GuestListPageState extends State<GuestListPage> {
               controller: _searchController,
               onChanged: (query) {
                 context.read<GuestsBloc>().add(
-                      SearchGuests(
-                          eventId: widget.eventId, query: query),
-                    );
+                  SearchGuests(eventId: widget.eventId, query: query),
+                );
               },
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.searchGuest,
@@ -68,9 +63,9 @@ class _GuestListPageState extends State<GuestListPage> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          context
-                              .read<GuestsBloc>()
-                              .add(LoadGuests(widget.eventId));
+                          context.read<GuestsBloc>().add(
+                            LoadGuests(widget.eventId),
+                          );
                         },
                       )
                     : null,
@@ -113,10 +108,10 @@ class _GuestListPageState extends State<GuestListPage> {
                     );
                 }
               },
-              buildWhen: (previous, current) => 
-                current is GuestsLoading || 
-                current is GuestsLoaded || 
-                current is GuestsError,
+              buildWhen: (previous, current) =>
+                  current is GuestsLoading ||
+                  current is GuestsLoaded ||
+                  current is GuestsError,
               builder: (context, state) {
                 if (state is GuestsLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -144,11 +139,14 @@ class _GuestListPageState extends State<GuestListPage> {
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
                             onPressed: () => context.push(
-                                '/events/${widget.eventId}/guests/add'),
+                              '/events/${widget.eventId}/guests/add',
+                            ),
                             icon: const Icon(Icons.person_add),
-                            label: Text(AppLocalizations.of(context)!
-                                .addGuest
-                                .toUpperCase()),
+                            label: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.addGuest.toUpperCase(),
+                            ),
                           ),
                         ],
                       ),
@@ -156,13 +154,14 @@ class _GuestListPageState extends State<GuestListPage> {
                   }
                   return RefreshIndicator(
                     onRefresh: () async {
-                      context
-                          .read<GuestsBloc>()
-                          .add(LoadGuests(widget.eventId));
+                      context.read<GuestsBloc>().add(
+                        LoadGuests(widget.eventId),
+                      );
                     },
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AppTheme.spacingMd),
+                        horizontal: AppTheme.spacingMd,
+                      ),
                       itemCount: state.guests.length,
                       itemBuilder: (context, index) {
                         final guest = state.guests[index];
@@ -175,32 +174,43 @@ class _GuestListPageState extends State<GuestListPage> {
                             decoration: BoxDecoration(
                               color: AppColors.error,
                               borderRadius: BorderRadius.circular(
-                                  AppTheme.borderRadiusSmall),
+                                AppTheme.borderRadiusSmall,
+                              ),
                             ),
-                            child: const Icon(Icons.delete,
-                                color: Colors.white),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
                           ),
                           confirmDismiss: (_) async {
                             return await showDialog(
                               context: context,
                               builder: (ctx) => AlertDialog(
-                                title:
-                                    Text(AppLocalizations.of(context)!.deleteGuest),
+                                title: Text(
+                                  AppLocalizations.of(context)!.deleteGuest,
+                                ),
                                 content: Text(
-                                    AppLocalizations.of(context)!.deleteGuestConfirm(guest.name)),
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.deleteGuestConfirm(guest.name),
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () =>
                                         Navigator.of(ctx).pop(false),
-                                    child: Text(AppLocalizations.of(context)!.cancel),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.cancel,
+                                    ),
                                   ),
                                   ElevatedButton(
                                     onPressed: () =>
                                         Navigator.of(ctx).pop(true),
                                     style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            AppColors.error),
-                                    child: Text(AppLocalizations.of(context)!.delete),
+                                      backgroundColor: AppColors.error,
+                                    ),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.delete,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -208,11 +218,11 @@ class _GuestListPageState extends State<GuestListPage> {
                           },
                           onDismissed: (_) {
                             context.read<GuestsBloc>().add(
-                                  DeleteGuest(
-                                    guestId: guest.id,
-                                    eventId: widget.eventId,
-                                  ),
-                                );
+                              DeleteGuest(
+                                guestId: guest.id,
+                                eventId: widget.eventId,
+                              ),
+                            );
                           },
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 8),
@@ -220,11 +230,11 @@ class _GuestListPageState extends State<GuestListPage> {
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(
-                                  AppTheme.borderRadiusSmall),
+                                AppTheme.borderRadiusSmall,
+                              ),
                               boxShadow: [
                                 BoxShadow(
-                                  color:
-                                      Colors.black.withValues(alpha: 0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -266,8 +276,8 @@ class _GuestListPageState extends State<GuestListPage> {
                                             '${guest.guestsCheckedIn}/${guest.totalGuests} ${AppLocalizations.of(context)!.people}',
                                             style: const TextStyle(
                                               fontSize: 12,
-                                              color: AppColors
-                                                  .textSecondaryLight,
+                                              color:
+                                                  AppColors.textSecondaryLight,
                                             ),
                                           ),
                                         ],
@@ -279,35 +289,62 @@ class _GuestListPageState extends State<GuestListPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.edit_outlined,
-                                          color: AppColors.primaryNavy,
-                                          size: 20),
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        color: AppColors.primaryNavy,
+                                        size: 20,
+                                      ),
                                       onPressed: () => context.push(
                                         '/events/${widget.eventId}/guests/add',
                                         extra: guest,
                                       ),
-                                      tooltip:
-                                          AppLocalizations.of(context)!.editGuest,
+                                      tooltip: AppLocalizations.of(
+                                        context,
+                                      )!.editGuest,
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete_outline,
-                                          color: AppColors.error,
-                                          size: 20),
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: AppColors.error,
+                                        size: 20,
+                                      ),
                                       onPressed: () async {
                                         final confirm = await showDialog<bool>(
                                           context: context,
                                           builder: (ctx) => AlertDialog(
-                                            title: Text(AppLocalizations.of(context)!.deleteGuest),
-                                            content: Text(AppLocalizations.of(context)!.deleteGuestConfirm(guest.name)),
+                                            title: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.deleteGuest,
+                                            ),
+                                            content: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.deleteGuestConfirm(guest.name),
+                                            ),
                                             actions: [
                                               TextButton(
-                                                onPressed: () => Navigator.of(ctx).pop(false),
-                                                child: Text(AppLocalizations.of(context)!.cancel),
+                                                onPressed: () => Navigator.of(
+                                                  ctx,
+                                                ).pop(false),
+                                                child: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.cancel,
+                                                ),
                                               ),
                                               ElevatedButton(
-                                                onPressed: () => Navigator.of(ctx).pop(true),
-                                                style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-                                                child: Text(AppLocalizations.of(context)!.delete),
+                                                onPressed: () =>
+                                                    Navigator.of(ctx).pop(true),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      AppColors.error,
+                                                ),
+                                                child: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.delete,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -321,37 +358,41 @@ class _GuestListPageState extends State<GuestListPage> {
                                           );
                                         }
                                       },
-                                      tooltip: AppLocalizations.of(context)!.delete,
+                                      tooltip: AppLocalizations.of(
+                                        context,
+                                      )!.delete,
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.send,
-                                          color: AppColors.secondaryTeal,
-                                          size: 20),
+                                      icon: const Icon(
+                                        Icons.send,
+                                        color: AppColors.secondaryTeal,
+                                        size: 20,
+                                      ),
                                       onPressed: () =>
                                           _sendInvitation(guest, state.event),
-                                      tooltip: AppLocalizations.of(context)!
-                                          .sendInvitation,
+                                      tooltip: AppLocalizations.of(
+                                        context,
+                                      )!.sendInvitation,
                                     ),
                                   ],
                                 ),
-                                ],
-                              ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                    );
-                  }
-                  if (state is GuestsError && state.message.contains('obtener')) {
-                    return Center(child: Text(state.message));
-                  }
-                  return const SizedBox();
-                },
-              ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+                if (state is GuestsError && state.message.contains('obtener')) {
+                  return Center(child: Text(state.message));
+                }
+                return const SizedBox();
+              },
             ),
-
-          ],
-        ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/events/${widget.eventId}/guests/add'),
         backgroundColor: AppColors.primaryNavy,
@@ -377,9 +418,9 @@ class _GuestListPageState extends State<GuestListPage> {
           children: [
             Text(
               AppLocalizations.of(context)!.sendInvitation,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -399,7 +440,9 @@ class _GuestListPageState extends State<GuestListPage> {
             _invitationChannelTile(
               icon: Icons.qr_code,
               title: AppLocalizations.of(context)!.sendInvitation,
-              subtitle: AppLocalizations.of(context)!.sendInvitationImageSubtitle,
+              subtitle: AppLocalizations.of(
+                context,
+              )!.sendInvitationImageSubtitle,
               color: AppColors.secondaryTeal,
               onTap: () {
                 Navigator.pop(context);
@@ -430,13 +473,19 @@ class _GuestListPageState extends State<GuestListPage> {
     );
   }
 
-  void _processInvitation(GuestEntity guest, String channel, EventEntity? event) async {
+  void _processInvitation(
+    GuestEntity guest,
+    String channel,
+    EventEntity? event,
+  ) async {
     // 1. Notify Backend / Edge Function
-    context.read<GuestsBloc>().add(SendInvitation(guest: guest, channel: channel));
+    context.read<GuestsBloc>().add(
+      SendInvitation(guest: guest, channel: channel),
+    );
 
     final eventName = event?.title ?? AppLocalizations.of(context)!.eventName;
     final eventType = event?.type ?? 'other';
-    
+
     final l10n = AppLocalizations.of(context)!;
     String message;
 
@@ -453,7 +502,6 @@ class _GuestListPageState extends State<GuestListPage> {
       default:
         message = l10n.invitationMessage(guest.name, eventName);
     }
-
 
     final file = await _generateQRFile(guest);
 
@@ -490,7 +538,7 @@ class _GuestListPageState extends State<GuestListPage> {
         final directory = await getTemporaryDirectory();
         final path = '${directory.path}/qr_${guest.id}.png';
         final picData = await painter.toImageData(300);
-        
+
         if (picData != null) {
           final file = File(path);
           await file.writeAsBytes(picData.buffer.asUint8List());
@@ -505,16 +553,17 @@ class _GuestListPageState extends State<GuestListPage> {
 
   Future<void> _shareQRImage(GuestEntity guest, EventEntity? event) async {
     // Notify backend that invitation is being sent
-    context.read<GuestsBloc>().add(SendInvitation(guest: guest, channel: 'share'));
+    context.read<GuestsBloc>().add(
+      SendInvitation(guest: guest, channel: 'share'),
+    );
 
     final file = await _generateQRFile(guest);
     if (file != null) {
       if (!mounted) return;
       final eventName = event?.title ?? AppLocalizations.of(context)!.eventName;
-      await Share.shareXFiles(
-        [XFile(file.path)], 
-        text: 'Código QR de ${guest.name} para $eventName'
-      );
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], text: 'Código QR de ${guest.name} para $eventName');
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -527,11 +576,11 @@ class _GuestListPageState extends State<GuestListPage> {
   Widget _statusBadge(GuestEntity guest) {
     final hasCheckedIn = guest.guestsCheckedIn > 0;
     final isInvited = guest.status == 'invited';
-    
+
     Color color;
     IconData icon;
     String text;
-    
+
     if (hasCheckedIn) {
       color = AppColors.success;
       icon = Icons.check_circle;
@@ -555,11 +604,7 @@ class _GuestListPageState extends State<GuestListPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 12,
-            color: color,
-          ),
+          Icon(icon, size: 12, color: color),
           const SizedBox(width: 4),
           Text(
             text,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/constants/app_theme.dart';
 import 'core/router/app_router.dart';
@@ -31,7 +30,8 @@ class GuestlyApp extends StatelessWidget {
         builder: (context, settings) {
           return MaterialApp.router(
             title: 'Guestly',
-            onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)!.appTitle,
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
