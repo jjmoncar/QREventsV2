@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/repositories/qr_repository.dart';
-import '../../../domain/entities/guest.dart';
 import 'scanner_event.dart';
 import 'scanner_state.dart';
 
