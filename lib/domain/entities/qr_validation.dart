@@ -8,8 +8,8 @@ enum QrValidationType {
   exceeded, 
   cancelled, 
   expired, 
-  early_date, 
-  early_time 
+  earlyDate, 
+  earlyTime 
 }
 
 class QrValidationResult extends Equatable {
@@ -64,9 +64,9 @@ class QrValidationResult extends Equatable {
       case 'expired':
         return QrValidationType.expired;
       case 'early_date':
-        return QrValidationType.early_date;
+        return QrValidationType.earlyDate;
       case 'early_time':
-        return QrValidationType.early_time;
+        return QrValidationType.earlyTime;
       default:
         return QrValidationType.invalid;
     }

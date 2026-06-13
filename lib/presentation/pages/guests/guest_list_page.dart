@@ -350,12 +350,14 @@ class _GuestListPageState extends State<GuestListPage> {
                                           ),
                                         );
                                         if (confirm == true) {
-                                          context.read<GuestsBloc>().add(
-                                            DeleteGuest(
-                                              guestId: guest.id,
-                                              eventId: widget.eventId,
-                                            ),
-                                          );
+                                          if (mounted && context.mounted) {
+                                            context.read<GuestsBloc>().add(
+                                              DeleteGuest(
+                                                guestId: guest.id,
+                                                eventId: widget.eventId,
+                                              ),
+                                            );
+                                          }
                                         }
                                       },
                                       tooltip: AppLocalizations.of(
@@ -503,7 +505,7 @@ class _GuestListPageState extends State<GuestListPage> {
         message = l10n.invitationMessage(guest.name, eventName);
     }
 
-    final file = await _generateQRFile(guest);
+
 
     if (channel == 'email') {
       // Feedback is now handled by BlocConsumer
@@ -511,8 +513,10 @@ class _GuestListPageState extends State<GuestListPage> {
       // Default fallback (Share QR Image) - though this might not be reached if using _shareQRImage directly
       final file = await _generateQRFile(guest);
       if (file != null) {
+        // ignore: deprecated_member_use
         await Share.shareXFiles([XFile(file.path)], text: message);
       } else {
+        // ignore: deprecated_member_use
         await Share.share(message);
       }
     }
@@ -530,8 +534,14 @@ class _GuestListPageState extends State<GuestListPage> {
         final qrCode = qrValidationResult.qrCode!;
         final painter = QrPainter.withQr(
           qr: qrCode,
-          color: const Color(0xFF000000),
-          emptyColor: const Color(0xFFFFFFFF),
+          eyeStyle: const QrEyeStyle(
+            eyeShape: QrEyeShape.square,
+            color: Color(0xFF000000),
+          ),
+          dataModuleStyle: const QrDataModuleStyle(
+            dataModuleShape: QrDataModuleShape.square,
+            color: Color(0xFF000000),
+          ),
           gapless: true,
         );
 
@@ -561,6 +571,7 @@ class _GuestListPageState extends State<GuestListPage> {
     if (file != null) {
       if (!mounted) return;
       final eventName = event?.title ?? AppLocalizations.of(context)!.eventName;
+      // ignore: deprecated_member_use
       await Share.shareXFiles([
         XFile(file.path),
       ], text: 'Código QR de ${guest.name} para $eventName');

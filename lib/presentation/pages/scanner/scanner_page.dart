@@ -211,14 +211,16 @@ class _ScannerPageState extends State<ScannerPage>
           _isCameraActive = true;
         });
         _cameraController.start();
-        context.read<ScannerBloc>().add(ResetScanner());
+        if (mounted && context.mounted) {
+          context.read<ScannerBloc>().add(ResetScanner());
+        }
         return;
       }
       count = pickedCount;
     }
 
     final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
-    if (mounted) {
+    if (mounted && context.mounted) {
       context.read<ScannerBloc>().add(
             ScanQrCode(
               qrToken: token,
@@ -319,11 +321,11 @@ class _ScannerPageState extends State<ScannerPage>
         bgColor = AppColors.error;
         icon = Icons.event_busy;
         break;
-      case QrValidationType.early_date:
+      case QrValidationType.earlyDate:
         bgColor = AppColors.warning;
         icon = Icons.event_note;
         break;
-      case QrValidationType.early_time:
+      case QrValidationType.earlyTime:
         bgColor = AppColors.warning;
         icon = Icons.access_time;
         break;

@@ -63,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
           if (isDuplicateEmail) {
             Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) context.go('/login');
+              if (mounted && context.mounted) context.go('/login');
             });
           }
         }
